@@ -1,3 +1,3 @@
 export function absoluteUrl(path: string) {
-  return `${process.env.SITE_URL || "http://localhost:3000"}${path}`;
+  return `https://admin.laikad.com${path}`;
 }

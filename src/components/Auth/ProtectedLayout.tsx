@@ -9,7 +9,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     const token = localStorage.getItem("accessToken");
 
     if (!token) {
-      router.push("http://localhost:3000/auth/signin"); 
+      router.push("https://admin.laikad.com/auth/signin"); 
     }
   }, [router]);
 
