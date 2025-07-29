@@ -1194,18 +1194,6 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 sx={{ mb: 3 }}
               />
 
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Tracking Link"
-                name="URL"
-                value={currentInfo.URL}
-                onChange={handleCampaignInputChange}
-                multiline
-                rows={3}
-                inputRef={trackingLinkRef}
-                sx={{ mb: 3 }}
-              />
               <StyledMacroButtons>
                 <Button variant="outlined" color="primary" onClick={() => handleMacroClick("{trace_id}")}>
                   Click ID
@@ -1226,6 +1214,19 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                   Publisher
                 </Button>
               </StyledMacroButtons>
+              <Box sx={{ my: 2 }}></Box> {/* Added a Box for spacing */}
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Tracking Link"
+                name="URL"
+                value={currentInfo.URL}
+                onChange={handleCampaignInputChange}
+                multiline
+                rows={3}
+                inputRef={trackingLinkRef}
+                sx={{ mb: 3 }}
+              />
 
               <TextField
                 fullWidth
