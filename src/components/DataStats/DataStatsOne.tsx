@@ -2,7 +2,7 @@ import { getDashboardData } from '@/app/api/dashboard/dashboard';
 import { getReportsCampaignTotal } from '@/app/api/report/service';
 import { dataStats } from '@/types/dataStats';
 import React, { useEffect, useState } from 'react';
-
+import { useRouter } from 'next/navigation';
 
 interface DataStatsOneProps {
   filters?: {
@@ -15,24 +15,37 @@ interface DataStatsOneProps {
 
 const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
   const [data, setData] = useState<any | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    setIsAuthenticated(!!token);
+  const router = useRouter(); // inicializá el router
+  const [checkingRole, setCheckingRole] = useState(true);
 
-    if (!token) {
-      setData({
-        Clicks: 0,
-        Install: 0,
-        Events: 0,
-        Cost: 0,
-        Revenue: 0,
-        Profit: 0,
-        TrackingProxy: 0,
-      });
+  
+ useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    const roleId = localStorage.getItem('RoleID');
+
+    if (roleId === '7') {
+      router.replace('/dashboard/dashboardAdvertiser');
       return;
     }
+
+    if (roleId === '8') {
+      router.replace('/dashboard/dashboardSuppliers');
+      return;
+    }
+
+  if (!token) {
+    setData({
+      Clicks: 0,
+      Install: 0,
+      Events: 0,
+      Cost: 0,
+      Revenue: 0,
+      Profit: 0,
+      TrackingProxy: 0,
+    });
+    setCheckingRole(false);
+    return;
+  }
 
     const fetchData = async () => {
       try {
@@ -57,15 +70,7 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
           '0'
         );
 
-        const roleID = localStorage.getItem('RoleID');
-        const isFiltered = roleID !== '9' && roleID !== '3';
-        const userId = parseInt(localStorage.getItem('UserID') || '', 10);
-
-        const filteredData = isFiltered ? response?.body?.result?.filter((item: any) => 
-          parseInt(item.AccountManagerID) === userId || parseInt(item.AccountManagerIDAdv) === userId
-        ) : response?.body?.result;
-
-        const todayData = filteredData?.reduce(
+        const todayData = response?.body?.result?.reduce(
           (acc: any, item: any) => {
             acc.Clicks += Number(item.totalClick || 0);
             acc.Install += Number(item.totalInstall || 0);
@@ -76,19 +81,36 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
             acc.TrackingProxy += Number(item.totalProxy || 0);
             return acc;
           },
-          { Clicks: 0, Install: 0, Events: 0, Cost: 0, Revenue: 0, Profit: 0, TrackingProxy: 0 }
-        );
-        setData(todayData);
+          {
+          Clicks: 0,
+          Install: 0,
+          Events: 0,
+          Cost: 0,
+          Revenue: 0,
+          Profit: 0,
+          TrackingProxy: 0,
+        }
+      );
 
+      setData(todayData);
+    } catch (error) {
+      console.error("Error fetching filtered stats:", error);
+    } finally {
+      setCheckingRole(false);
+    }
+  };
 
-      } catch (error) {
-        console.error("Error fetching filtered stats:", error);
-      }
-    };
+  if (roleId === '3' || roleId === '9') {
+      fetchData();
+    } else {
+      setCheckingRole(false); // si no matchea ningún rol, también lo terminamos
+    }
+  }, [filters]);
 
-    fetchData();
-  }, [filters]); 
-  
+  // 🚨 Este es el bloque que te falta
+  if (checkingRole) {
+    return null; // evita renderizar el dashboard base antes del redirect
+  }
   const dataStatsList = [
     {
       icon: (
