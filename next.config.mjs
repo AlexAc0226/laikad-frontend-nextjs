@@ -5,9 +5,9 @@ const nextConfig = {
       "localhost",
       "ad.laikad.com",
       "is4-ssl.mzstatic.com",
-        "is1-ssl.mzstatic.com",
+      "is1-ssl.mzstatic.com",
       "play-lh.googleusercontent.com",
-      "media.graphassets.com" // 👈 AGREGALO ACÁ
+      "media.graphassets.com"
     ],
     remotePatterns: [
       {
@@ -31,6 +31,15 @@ const nextConfig = {
         port: ""
       }
     ]
+  },
+  async redirects() {
+    return [
+      {
+        source: '/app',
+        destination: '/',
+        permanent: false
+      }
+    ];
   }
 };
 
