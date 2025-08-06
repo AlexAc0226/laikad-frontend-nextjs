@@ -5,6 +5,7 @@ import { getSuppliers, getAdvertisers } from "@/app/api/filtersService/filtersSe
 import { getOffers, createOrUpdateOffer, changeStatusOffer } from "@/app/api/offer/service";
 import { getCampaignsByAdvertiserID, getAllCampaigns } from "@/app/api/campaign/service";
 import { Box, Button, Select, MenuItem, Input, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, useTheme, TextareaAutosize, Tooltip, SelectChangeEvent } from "@mui/material";
+import apiClient from "@/libs/axiosConfig";
 
 // Definimos las interfaces para los datos
 interface Advertiser {
@@ -788,6 +789,31 @@ Status: ${selectedOfferForDetails.status || "N/A"}
     setIsConfirmationModalOpen(false);
     handleOpenAddSupplierModal();
   };
+
+  const sendEmailOffers = async (offersList: string[]) => {
+  if (offersList.length === 0) {
+    alert("No offers selected to send.");
+    return;
+  }
+
+  const Offers = offersList.join(",");
+  const endpoint = `/reports/offers?Offers=${Offers}&output=email`;
+
+  try {
+    const response = await apiClient.get(endpoint);
+    const result = response.data.result;
+
+    result.forEach((item: any) => {
+      if (item.success) {
+        alert(`✅ ${item.Offer}`);
+      } else {
+        alert(`❌ ${item.error}`);
+      }
+    });
+  } catch (error: any) {
+    alert("Error sending email: " + (error?.message || "Unknown error"));
+  }
+};
 
   return (
     <Box sx={{ p: 3, bgcolor: "background.default", borderRadius: 2, boxShadow: 1, color: theme.palette.text.primary }}>
@@ -1651,16 +1677,24 @@ Status: ${selectedOfferForDetails.status || "N/A"}
               )}
               <Box sx={{ color: theme.palette.text.primary, fontSize: "1rem" }}>{confirmationMessage}</Box>
             </Box>
-            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 4 }}>
-              <Button
-                onClick={handleCloseConfirmationModal}
-                variant="outlined"
-                color="inherit"
-                size="medium"
-                sx={{ minWidth: 100, height: 40 }}
-              >
-                Close
-              </Button>
+           <Box display="flex" justifyContent="flex-end" gap={2} mt={3}>
+  <Button onClick={handleCloseConfirmationModal} variant="outlined">
+    Close
+  </Button>
+
+  <Button
+  variant="outlined"
+  color="secondary"
+  onClick={() => {
+    const offerIDs = offerForms
+      .filter((form) => form.offerId)
+      .map((form) => form.offerId);
+    sendEmailOffers(offerIDs);
+  }}
+>
+  Send Email
+</Button>
+
               <Button
                 onClick={handleNewOffers}
                 variant="contained"
@@ -1670,6 +1704,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
               >
                 New Offers
               </Button>
+             
             </Box>
           </Box>
         </Box>
