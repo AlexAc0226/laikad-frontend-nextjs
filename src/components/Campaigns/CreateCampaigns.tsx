@@ -727,6 +727,10 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
         ...prev,
         CampaignHeadID: response.result?.CampaignHeadID || 0,
       }));
+      setCurrentInfoHead((prev) => ({
+        ...prev,
+        CampaignHeadID: response.result?.CampaignHeadID || 0,
+      }));
     } else {
       setFlagCreatedHead(false);
     }
