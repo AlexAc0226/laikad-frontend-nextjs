@@ -947,9 +947,8 @@ const ShowCampaigns: React.FC = () => {
               <TableCell>Type</TableCell>
               <TableCell>Advertiser</TableCell>
               <TableCell>Head Campaigns</TableCell>
-              <TableCell>Cost</TableCell>
-              <TableCell>PayOut</TableCell>
-              <TableCell>Discount</TableCell>
+              <TableCell>PayOut Install</TableCell>
+              <TableCell>PayOut Event</TableCell>
               <TableCell>Category</TableCell>
               <TableCell>Device</TableCell>
               <TableCell>Daily Budget</TableCell>
@@ -1029,9 +1028,8 @@ const ShowCampaigns: React.FC = () => {
                   <TableCell>{campaign.CampaignType || "N/A"}</TableCell>
                   <TableCell>{campaign.Advertiser || "N/A"}</TableCell>
                   <TableCell>{campaign.CampaignHead || "N/A"}</TableCell>
-                  <TableCell>${campaign.Cost || "0"}</TableCell>
-                  <TableCell>${campaign.PayOut || "0"}</TableCell>
-                  <TableCell>${campaign.Discount || "0"}</TableCell>
+                  <TableCell>${campaign.Revenue || "0"}</TableCell>
+                  <TableCell>${campaign.eventPayOut1 || "0"}</TableCell>
                   <TableCell>{campaign.CampaignCategory || "N/A"}</TableCell>
                   <TableCell>{campaign.Device || "N/A"}</TableCell>
                   <TableCell>${campaign.DailyAmount || "0"}</TableCell>
