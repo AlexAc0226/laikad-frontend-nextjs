@@ -7,23 +7,19 @@ import { getCampaignsByAdvertiserID, getAllCampaigns } from "@/app/api/campaign/
 import { Box, Button, Select, MenuItem, Input, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, useTheme, TextareaAutosize, Tooltip, SelectChangeEvent } from "@mui/material";
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 
-// Definimos las interfaces para los datos
 interface Advertiser {
   AdvertiserID: number;
   Advertiser: string;
 }
-
 interface Supplier {
   SupplierID: number;
   Supplier: string;
   PostBackURL: string;
 }
-
 interface Campaign {
   CampaignID: string;
   CampaignName: string;
 }
-
 interface Offer {
   OfferId: string;
   AccountManager: string;
@@ -53,7 +49,6 @@ interface Offer {
   DailyQuantity?: string;
   Advertiser: string;
 }
-
 interface CampaignData {
   Campaign: string;
   CampaignID: string;
@@ -66,7 +61,6 @@ interface CampaignData {
   CampaignTypeID: string;
   URL: string;
 }
-
 interface OfferFormData {
   campaign: string;
   campaignId: string;
@@ -86,13 +80,11 @@ interface OfferFormData {
   offer: string;
   offerId: string;
 }
-
 interface OfferResult {
   status: "OK" | "Error";
   message?: string;
   Offer?: string;
 }
-
 interface CreateOfferResponse {
   result: OfferResult[];
 }
@@ -103,7 +95,6 @@ const ShowOffers: React.FC = () => {
   const [advertiser, setAdvertiser] = useState<string>("");
   const [supplier, setSupplier] = useState<string>("");
   const [status, setStatus] = useState("Active");
-
   // Estados para los datos de los selects
   const [advertisers, setAdvertisers] = useState<Advertiser[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -113,10 +104,8 @@ const ShowOffers: React.FC = () => {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [resulConsult, setResulConsult] = useState("Record count 0");
-
   const [totalTime, setTotalTime] = useState("0 seg.");
   const [totalSize, setTotalSize] = useState("0 Kb.");
-
   // Estados para el modal de edición
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoadingEditModal, setIsLoadingEditModal] = useState(false);
@@ -130,13 +119,11 @@ const ShowOffers: React.FC = () => {
     DailyCap: "",
     status: "Active",
   });
-
   // Estados para el modal de detalles
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isLoadingDetailsModal, setIsLoadingDetailsModal] = useState(false);
   const [selectedOfferForDetails, setSelectedOfferForDetails] = useState<Offer | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
-
   // Estados para el modal de "Add from Supplier"
   const [isAddSupplierModalOpen, setIsAddSupplierModalOpen] = useState(false);
   const [isLoadingAddSupplierModal, setIsLoadingAddSupplierModal] = useState(false);
@@ -149,7 +136,6 @@ const ShowOffers: React.FC = () => {
   const [selectedNewOffer, setSelectedNewOffer] = useState<string>("");
   const [isCampaignDropdownOpen, setIsCampaignDropdownOpen] = useState(false);
   const campaignDropdownRef = useRef<HTMLDivElement>(null);
-
   // Estados para el modal de "Add from Advertiser"
   const [isAddAdvertiserModalOpen, setIsAddAdvertiserModalOpen] = useState(false);
   const [isLoadingAddAdvertiserModal, setIsLoadingAddAdvertiserModal] = useState(false);
@@ -157,14 +143,14 @@ const ShowOffers: React.FC = () => {
   const [advertiserCampaigns, setAdvertiserCampaigns] = useState<Campaign[]>([]);
   const [selectedAdvertiserCampaigns, setSelectedAdvertiserCampaigns] = useState<string[]>([]);
   const [selectedAdvertiserSupplier, setSelectedAdvertiserSupplier] = useState<string>("");
-
   // Estado para manejar la carga del cambio de estado
   const [changingStatusId, setChangingStatusId] = useState<string | null>(null);
-
   // Estados para el modal de confirmación
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [confirmationStatus, setConfirmationStatus] = useState<"success" | "error" | "mixed">("success");
   const [confirmationMessage, setConfirmationMessage] = useState("");
+  const [advertiserSearch, setAdvertiserSearch] = useState<string>("");
+  const [supplierSearch, setSupplierSearch] = useState<string>("");
 
   // Cargar los datos de Advertisers y Suppliers al montar el componente
   useEffect(() => {
@@ -177,7 +163,6 @@ const ShowOffers: React.FC = () => {
           console.warn("No advertisers found");
           setAdvertisers([]);
         }
-
         const suppliersData = await getSuppliers();
         if (suppliersData && Array.isArray(suppliersData.result)) {
           setSuppliers(suppliersData.result);
@@ -191,7 +176,6 @@ const ShowOffers: React.FC = () => {
         setSuppliers([]);
       }
     };
-
     fetchData();
   }, []);
 
@@ -203,7 +187,6 @@ const ShowOffers: React.FC = () => {
         setSelectedAdvertiserCampaigns([]);
         return;
       }
-
       try {
         const response = await getCampaignsByAdvertiserID(Number(selectedAdvertiser));
         if (response && Array.isArray(response.result)) {
@@ -217,7 +200,6 @@ const ShowOffers: React.FC = () => {
         setAdvertiserCampaigns([]);
       }
     };
-
     fetchCampaigns();
   }, [selectedAdvertiser]);
 
@@ -228,7 +210,6 @@ const ShowOffers: React.FC = () => {
       setFilteredCampaigns([]);
       return;
     }
-
     const fetchCampaigns = async () => {
       try {
         const campaignsData = await getAllCampaigns();
@@ -248,22 +229,18 @@ const ShowOffers: React.FC = () => {
         setFilteredCampaigns([]);
       }
     };
-
     fetchCampaigns();
   }, [isAddSupplierModalOpen]);
 
   // Filter campaigns based on search query and exclude selected campaigns
   useEffect(() => {
     let filtered = allCampaigns;
-
     if (campaignSearchQuery.trim() !== "") {
       const escapedQuery = campaignSearchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const regex = new RegExp(`\\b${escapedQuery}\\b`, "i");
       filtered = filtered.filter((campaign) => regex.test(campaign.Campaign));
     }
-
     filtered = filtered.filter((campaign) => !selectedSupplierCampaigns.includes(campaign.Campaign));
-
     setFilteredCampaigns(filtered);
   }, [campaignSearchQuery, allCampaigns, selectedSupplierCampaigns]);
 
@@ -274,7 +251,6 @@ const ShowOffers: React.FC = () => {
         setIsCampaignDropdownOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -288,17 +264,14 @@ const ShowOffers: React.FC = () => {
       setSelectedNewOffer("");
       return;
     }
-
     const supplierData = suppliers.find((sup) => parseInt(sup.SupplierID.toString()) === parseInt(selectedSupplier));
     const supplierName = supplierData?.Supplier || "Unknown Supplier";
     const supplierPostBackURL = supplierData?.PostBackURL || "N/A";
-
     const newOfferForms: OfferFormData[] = selectedSupplierCampaigns.map((campaignName) => {
       const existingForm = offerForms.find((form) => form.campaign === campaignName);
       if (existingForm) {
         return existingForm;
       }
-
       const campaignData = allCampaigns.find((camp) => camp.Campaign === campaignName) || {
         Campaign: campaignName,
         CampaignID: "",
@@ -311,7 +284,6 @@ const ShowOffers: React.FC = () => {
         CampaignTypeID: "",
         URL: "N/A",
       };
-
       const payout = campaignData.CampaignTypeID === "CP2" ? campaignData.eventPayOut1 : campaignData.Revenue;
       const cost = (parseFloat(payout) * 0.7).toFixed(2);
       const capClicks = campaignData.DailyQuantityClick
@@ -319,7 +291,6 @@ const ShowOffers: React.FC = () => {
         : "0";
       const capInstallEvent = campaignData.DailyQuantity || "0";
       const proxy = "70";
-
       return {
         campaign: campaignData.Campaign,
         campaignId: campaignData.CampaignID,
@@ -340,9 +311,7 @@ const ShowOffers: React.FC = () => {
         offerId: "",
       };
     });
-
     setOfferForms(newOfferForms);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSupplierCampaigns, selectedSupplier, suppliers, allCampaigns]);
 
   const handleCampaignSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -375,7 +344,6 @@ const ShowOffers: React.FC = () => {
       alert("Please select at least one campaign to create an offer.");
       return;
     }
-
     setIsLoadingAddSupplierModal(true);
     try {
       const offerDataList = offerForms.map((form) => ({
@@ -390,13 +358,10 @@ const ShowOffers: React.FC = () => {
         StatusID: form.statusId,
         SupplierID: form.supplierId,
       }));
-
       const response: CreateOfferResponse = await createOrUpdateOffer("POST", offerDataList);
-
       if (response.result && Array.isArray(response.result)) {
         const successfulOffers = response.result.filter((res) => res.status === "OK");
         const failedOffers = response.result.filter((res) => res.status === "Error");
-
         if (successfulOffers.length === response.result.length) {
           setConfirmationStatus("success");
           setConfirmationMessage("All offers created successfully!");
@@ -410,14 +375,11 @@ const ShowOffers: React.FC = () => {
             `${failedOffers.length} offer${failedOffers.length > 1 ? "s" : ""} failed to create.`
           );
         }
-
-        // Fetch offers for the specific supplier we just created offers for
         await handleFetchOffers(selectedSupplier);
       } else {
         setConfirmationStatus("error");
         setConfirmationMessage("Unexpected response from server.");
       }
-
       handleCloseAddSupplierModal();
       setIsConfirmationModalOpen(true);
     } catch (error) {
@@ -450,9 +412,7 @@ const ShowOffers: React.FC = () => {
         StatusID: "",
         AdvertiserID: advertiser || "",
       };
-
       const response = await getOffers(params);
-
       if (response && Array.isArray(response.result)) {
         const formattedOffers = response.result.map((item: any, index: number) => ({
           Advertiser: item.Advertiser || "N/A",
@@ -483,7 +443,6 @@ const ShowOffers: React.FC = () => {
           DailyQuantityClick: item.DailyQuantityClick || "0",
           DailyQuantity: item.DailyQuantity || "0",
         }));
-
         setOffers(formattedOffers);
         setResulConsult(`Record count ${response.total || formattedOffers.length}`);
         setTotalTime(`${response.time || "0.001"} seg.`);
@@ -508,7 +467,6 @@ const ShowOffers: React.FC = () => {
 
   const filteredOffers = (() => {
     let filtered = [...offers];
-
     if (status === "Active") {
       filtered = filtered.filter((offer) => offer.StatusID === "A");
     } else if (status === "Paused") {
@@ -520,22 +478,18 @@ const ShowOffers: React.FC = () => {
         return 0;
       });
     }
-
     return filtered;
   })();
 
   const handleTogglePlayPause = async (offer: Offer) => {
     const newStatusID = offer.StatusID === "A" ? "P" : "A";
     setChangingStatusId(offer.OfferId);
-
     try {
       const params = {
         OfferID: offer.OfferId,
         StatusID: newStatusID,
       };
-
       await changeStatusOffer(params);
-
       setOffers((prev) =>
         prev.map((o) =>
           o.OfferId === offer.OfferId
@@ -559,8 +513,10 @@ const ShowOffers: React.FC = () => {
   const handleClear = (field: string) => {
     if (field === "advertiser") {
       setAdvertiser("");
+      setAdvertiserSearch("");
     } else if (field === "supplier") {
       setSupplier("");
+      setSupplierSearch("");
     } else if (field === "status") {
       setStatus("Active");
     }
@@ -568,7 +524,9 @@ const ShowOffers: React.FC = () => {
 
   const handleClearAll = () => {
     setAdvertiser("");
+    setAdvertiserSearch("");
     setSupplier("");
+    setSupplierSearch("");
     setStatus("Active");
     setOffers([]);
     setResulConsult("Record count 0");
@@ -576,9 +534,8 @@ const ShowOffers: React.FC = () => {
     setTotalSize("0 Kb.");
   };
 
-  const showRefreshButton = advertiser !== "" || supplier !== "";
-  const showClearButton =
-    offers.length > 0 || advertiser !== "" || supplier !== "" || status !== "Active";
+  const showRefreshButton = advertiser !== "" || supplier !== "" || status !== "Active";
+  const showClearButton = offers.length > 0 || advertiser !== "" || supplier !== "" || status !== "Active";
   const hasPausedOffers = offers.some((offer) => offer.StatusID === "P");
 
   const handleOpenEditModal = async (offer: Offer) => {
@@ -594,7 +551,6 @@ const ShowOffers: React.FC = () => {
     });
     setIsLoadingEditModal(true);
     setIsEditModalOpen(true);
-
     setTimeout(() => {
       setSelectedOffer(offer);
       setFormData({
@@ -640,7 +596,6 @@ const ShowOffers: React.FC = () => {
         if (!supplier) {
           throw new Error("Supplier not found");
         }
-
         const offerData = {
           CampaignID: selectedOffer.CampaignID,
           Cost: formData.cost,
@@ -653,9 +608,7 @@ const ShowOffers: React.FC = () => {
           StatusID: formData.status === "Active" ? "A" : "P",
           SupplierID: String(supplier.SupplierID),
         };
-
         await createOrUpdateOffer("PUT", [offerData]);
-
         setOffers((prev) =>
           prev.map((offer) =>
             offer.OfferId === selectedOffer.OfferId
@@ -674,7 +627,6 @@ const ShowOffers: React.FC = () => {
               : offer
           )
         );
-
         handleCloseEditModal();
       } catch (error) {
         console.error("Error updating offer:", error);
@@ -689,7 +641,6 @@ const ShowOffers: React.FC = () => {
     setSelectedOfferForDetails(null);
     setIsLoadingDetailsModal(true);
     setIsDetailsModalOpen(true);
-
     setTimeout(() => {
       setSelectedOfferForDetails(offer);
       setIsLoadingDetailsModal(false);
@@ -712,7 +663,6 @@ const ShowOffers: React.FC = () => {
     setIsLoadingAddSupplierModal(true);
     setIsAddSupplierModalOpen(true);
     setIsCampaignDropdownOpen(true);
-
     setTimeout(() => {
       setIsLoadingAddSupplierModal(false);
     }, 300);
@@ -736,7 +686,6 @@ const ShowOffers: React.FC = () => {
     setSelectedAdvertiserSupplier("");
     setIsLoadingAddAdvertiserModal(true);
     setIsAddAdvertiserModalOpen(true);
-
     setTimeout(() => {
       setIsLoadingAddAdvertiserModal(false);
     }, 300);
@@ -753,7 +702,6 @@ const ShowOffers: React.FC = () => {
 
   const handleCopyToClipboard = () => {
     if (!selectedOfferForDetails) return;
-
     const offerDetailsText = `
 Account Manager: ${selectedOfferForDetails.AccountManager || "N/A"}
 Offer ID: ${selectedOfferForDetails.OfferId || "N/A"}
@@ -776,7 +724,6 @@ URL Click Supplier Tracking: ${selectedOfferForDetails.UrlClickSupplierTracking 
 URL Test Click: ${selectedOfferForDetails.UrlTestClick || "N/A"}
 Status: ${selectedOfferForDetails.status || "N/A"}
 `.trim();
-
     navigator.clipboard.writeText(offerDetailsText).then(() => {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
@@ -799,7 +746,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
           Offers
         </h1>
       </Box>
-
       {/* Filtros */}
       <Box
         sx={{
@@ -812,160 +758,154 @@ Status: ${selectedOfferForDetails.status || "N/A"}
           color: theme.palette.text.primary,
         }}
       >
-        
         <ClickAwayListener onClickAway={() => setShowAdvertiserSuggestions(false)}>
-  <Box sx={{ position: "relative" }}>
-    <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
-      Advertiser
-    </label>
-    <Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
-      <Input
-        fullWidth
-        placeholder="Search advertisers..."
-        value={
-          advertisers.find((a) => a.AdvertiserID.toString() === selectedAdvertiser)?.Advertiser || selectedAdvertiser
-        }
-        onChange={(e) => setSelectedAdvertiser(e.target.value)}
-        onFocus={() => setShowAdvertiserSuggestions(true)}
-        sx={{ height: 48 }}
-      />
-      {selectedAdvertiser && (
-        <Button
-          onClick={() => handleClear("advertiser")}
-          sx={{
-            minWidth: 40,
-            height: 40,
-            ml: 1,
-            bgcolor: theme.palette.grey[300],
-            color: theme.palette.text.primary,
-            "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
-          }}
-        >
-          <FaTrash />
-        </Button>
-      )}
-      {showAdvertiserSuggestions && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            zIndex: 10,
-            width: "100%",
-            bgcolor: "background.paper",
-            boxShadow: 3,
-            borderRadius: 1,
-            mt: 1,
-            maxHeight: 200,
-            overflowY: "auto",
-          }}
-        >
-          {advertisers
-            .filter((a) =>
-              a.Advertiser.toLowerCase().includes(selectedAdvertiser.toLowerCase())
-            )
-            .map((a) => (
-              <Box
-                key={a.AdvertiserID}
-                onClick={() => {
-                  setSelectedAdvertiser(a.AdvertiserID.toString());
-                  setShowAdvertiserSuggestions(false);
-                }}
-                sx={{
-                  px: 2,
-                  py: 1,
-                  cursor: "pointer",
-                  "&:hover": {
-                    bgcolor: "action.hover",
-                  },
-                }}
-              >
-                {a.Advertiser}
-              </Box>
-            ))}
-        </Box>
-      )}
-    </Box>
-  </Box>
-</ClickAwayListener>
-
-
-       <ClickAwayListener onClickAway={() => setShowPublisherSuggestions(false)}>
-  <Box sx={{ position: "relative" }}>
-    <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
-      Supplier
-    </label>
-    <Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
-      <Input
-        fullWidth
-        placeholder="Search suppliers..."
-        value={
-          suppliers.find((s) => s.SupplierID.toString() === supplier)?.Supplier || supplier
-        }
-        onChange={(e) => setSupplier(e.target.value)}
-        onFocus={() => setShowPublisherSuggestions(true)}
-        sx={{ height: 48 }}
-      />
-      {supplier && (
-        <Button
-          onClick={() => handleClear("supplier")}
-          sx={{
-            minWidth: 40,
-            height: 40,
-            ml: 1,
-            bgcolor: theme.palette.grey[300],
-            color: theme.palette.text.primary,
-            "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
-          }}
-        >
-          <FaTrash />
-        </Button>
-      )}
-      {showPublisherSuggestions && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            zIndex: 10,
-            width: "100%",
-            bgcolor: "background.paper",
-            boxShadow: 3,
-            borderRadius: 1,
-            mt: 1,
-            maxHeight: 200,
-            overflowY: "auto",
-          }}
-        >
-          {suppliers
-            .filter((s) =>
-              s.Supplier.toLowerCase().includes(supplier.toLowerCase())
-            )
-            .map((s) => (
-              <Box
-                key={s.SupplierID}
-                onClick={() => {
-                  setSupplier(s.SupplierID.toString());
-                  setShowPublisherSuggestions(false);
-                }}
-                sx={{
-                  px: 2,
-                  py: 1,
-                  cursor: "pointer",
-                  "&:hover": {
-                    bgcolor: "action.hover",
-                  },
-                }}
-              >
-                {s.Supplier}
-              </Box>
-            ))}
-        </Box>
-      )}
-    </Box>
-  </Box>
-</ClickAwayListener>
-
+          <Box sx={{ position: "relative" }}>
+            <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
+              Advertiser
+            </label>
+            <Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <Input
+                fullWidth
+                placeholder="Search advertisers..."
+                value={advertiserSearch}
+                onChange={(e) => setAdvertiserSearch(e.target.value)}
+                onFocus={() => setShowAdvertiserSuggestions(true)}
+                sx={{ height: 48 }}
+              />
+              {advertiser && (
+                <Button
+                  onClick={() => handleClear("advertiser")}
+                  sx={{
+                    minWidth: 40,
+                    height: 40,
+                    ml: 1,
+                    bgcolor: theme.palette.grey[300],
+                    color: theme.palette.text.primary,
+                    "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
+                  }}
+                >
+                  <FaTrash />
+                </Button>
+              )}
+              {showAdvertiserSuggestions && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 10,
+                    width: "100%",
+                    bgcolor: "background.paper",
+                    boxShadow: 3,
+                    borderRadius: 1,
+                    mt: 1,
+                    maxHeight: 200,
+                    overflowY: "auto",
+                  }}
+                >
+                  {advertisers
+                    .filter((a) =>
+                      a.Advertiser.toLowerCase().includes(advertiserSearch.toLowerCase())
+                    )
+                    .map((a) => (
+                      <Box
+                        key={a.AdvertiserID}
+                        onClick={() => {
+                          setAdvertiser(a.AdvertiserID.toString());
+                          setAdvertiserSearch(a.Advertiser);
+                          setShowAdvertiserSuggestions(false);
+                        }}
+                        sx={{
+                          px: 2,
+                          py: 1,
+                          cursor: "pointer",
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        {a.Advertiser}
+                      </Box>
+                    ))}
+                </Box>
+              )}
+            </Box>
+          </Box>
+        </ClickAwayListener>
+        <ClickAwayListener onClickAway={() => setShowPublisherSuggestions(false)}>
+          <Box sx={{ position: "relative" }}>
+            <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
+              Supplier
+            </label>
+            <Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <Input
+                fullWidth
+                placeholder="Search suppliers..."
+                value={supplierSearch}
+                onChange={(e) => setSupplierSearch(e.target.value)}
+                onFocus={() => setShowPublisherSuggestions(true)}
+                sx={{ height: 48 }}
+              />
+              {supplier && (
+                <Button
+                  onClick={() => handleClear("supplier")}
+                  sx={{
+                    minWidth: 40,
+                    height: 40,
+                    ml: 1,
+                    bgcolor: theme.palette.grey[300],
+                    color: theme.palette.text.primary,
+                    "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
+                  }}
+                >
+                  <FaTrash />
+                </Button>
+              )}
+              {showPublisherSuggestions && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 10,
+                    width: "100%",
+                    bgcolor: "background.paper",
+                    boxShadow: 3,
+                    borderRadius: 1,
+                    mt: 1,
+                    maxHeight: 200,
+                    overflowY: "auto",
+                  }}
+                >
+                  {suppliers
+                    .filter((s) =>
+                      s.Supplier.toLowerCase().includes(supplierSearch.toLowerCase())
+                    )
+                    .map((s) => (
+                      <Box
+                        key={s.SupplierID}
+                        onClick={() => {
+                          setSupplier(s.SupplierID.toString());
+                          setSupplierSearch(s.Supplier);
+                          setShowPublisherSuggestions(false);
+                        }}
+                        sx={{
+                          px: 2,
+                          py: 1,
+                          cursor: "pointer",
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        {s.Supplier}
+                      </Box>
+                    ))}
+                </Box>
+              )}
+            </Box>
+          </Box>
+        </ClickAwayListener>
         <Box sx={{ position: "relative" }}>
           <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
             Status
@@ -1005,7 +945,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
             )}
           </Box>
         </Box>
-
         <Box sx={{ gridColumn: { xs: "span 1", sm: "span 2", lg: "span 2" }, display: "flex", justifyContent: "flex-end", gap: 2, alignItems: "flex-end", flexWrap: "wrap" }}>
           <Tooltip title="Add Offer from Supplier">
             <Button
@@ -1023,7 +962,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
               Create Offer
             </Button>
           </Tooltip>
-          {showRefreshButton && (
+          {(advertiser !== "" || supplier !== "" || status !== "Active") && (
             <Tooltip title="Refresh Offers">
               <Button
                 onClick={() => handleFetchOffers()}
@@ -1062,13 +1001,11 @@ Status: ${selectedOfferForDetails.status || "N/A"}
           )}
         </Box>
       </Box>
-
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 4, color: theme.palette.text.secondary, flexWrap: "wrap", gap: 2 }}>
         <span>{resulConsult}</span>
         <span>{totalTime}</span>
         <span>{totalSize}</span>
       </Box>
-
       {hasPausedOffers && status === "Active" && (
         <Box
           sx={{
@@ -1083,7 +1020,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
           There are paused offers available. Change the status filter to Paused or All to view them.
         </Box>
       )}
-
       {/* Tabla de Ofertas */}
       <Box sx={{ mt: 3, overflowX: "auto", pb: 2 }}>
         <Table sx={{ minWidth: 650, bgcolor: "background.paper", borderRadius: 1, "& .MuiTableCell-root": { borderBottom: `1px solid ${theme.palette.divider}`, padding: "12px" }, color: theme.palette.text.primary }}>
@@ -1212,7 +1148,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
           </TableBody>
         </Table>
       </Box>
-
       {/* Modal de Edición */}
       {isEditModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
@@ -1338,7 +1273,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
           </Box>
         </Box>
       )}
-
       {/* Modal de Detalles */}
       {isDetailsModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
@@ -1380,7 +1314,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                       {selectedOfferForDetails.UrlClickSupplierTracking || "N/A"}
                     </Box>
                   </Box>
-
                   <Box sx={{ bgcolor: theme.palette.background.paper, p: 3, borderRadius: 1 }}>
                     <h3 style={{ color: theme.palette.text.secondary, marginBottom: 2, fontSize: "0.875rem", fontWeight: 500 }}>
                       Offer Details
@@ -1413,7 +1346,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                       ))}
                     </Box>
                   </Box>
-
                   {selectedOfferForDetails.PreviewLink && selectedOfferForDetails.PreviewLink !== "N/A" && (
                     <Box sx={{ bgcolor: theme.palette.background.paper, p: 3, borderRadius: 1 }}>
                       <h3 style={{ color: theme.palette.text.secondary, marginBottom: 2, fontSize: "0.875rem", fontWeight: 500 }}>
@@ -1424,7 +1356,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                       </Box>
                     </Box>
                   )}
-
                   {selectedOfferForDetails.Banners && selectedOfferForDetails.Banners !== "N/A" && (
                     <Box sx={{ bgcolor: theme.palette.background.paper, p: 3, borderRadius: 1 }}>
                       <h3 style={{ color: theme.palette.text.secondary, marginBottom: 2, fontSize: "0.875rem", fontWeight: 500 }}>
@@ -1435,7 +1366,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                       </Box>
                     </Box>
                   )}
-
                   {selectedOfferForDetails.UrlTestClick && selectedOfferForDetails.UrlTestClick !== "N/A" && (
                     <Box sx={{ bgcolor: theme.palette.background.paper, p: 3, borderRadius: 1 }}>
                       <h3 style={{ color: theme.palette.text.secondary, marginBottom: 2, fontSize: "0.875rem", fontWeight: 500 }}>
@@ -1463,7 +1393,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
           </Box>
         </Box>
       )}
-
       {/* Modal de Agregar desde Supplier */}
       {isAddSupplierModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
@@ -1507,7 +1436,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                     ))}
                   </Select>
                 </Box>
-
                 <Box sx={{ position: "relative" }}>
                   <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: 1 }}>
                     Campaigns
@@ -1553,7 +1481,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                     </Box>
                   )}
                 </Box>
-
                 {selectedSupplierCampaigns.length > 0 && (
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
                     {selectedSupplierCampaigns.map((campaign) => (
@@ -1577,7 +1504,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                     ))}
                   </Box>
                 )}
-
                 {offerForms.map((form, index) => (
                   <Box key={index} sx={{ borderTop: `2px solid ${theme.palette.error.main}`, pt: 3, mt: 3 }}>
                     <h3 style={{ color: theme.palette.text.primary, fontSize: "1rem", fontWeight: 600, marginBottom: 2 }}>
@@ -1703,7 +1629,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
           </Box>
         </Box>
       )}
-
       {/* Modal de Confirmación */}
       {isConfirmationModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
@@ -1741,7 +1666,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
           </Box>
         </Box>
       )}
-
       {/* Modal de Agregar desde Advertiser */}
       {isAddAdvertiserModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
