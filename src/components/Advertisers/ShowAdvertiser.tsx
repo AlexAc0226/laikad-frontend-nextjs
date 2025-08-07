@@ -18,7 +18,7 @@ import {
   CheckIcon,
 } from "@heroicons/react/24/solid";
 import { Tooltip } from "react-tooltip";
-import { Box, Button, useTheme, TextField, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox } from "@mui/material";
+import { Box, Button, useTheme, TextField, Select,Input, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox } from "@mui/material";
 
 interface Manager {
   AccountManagerID: number;
@@ -42,8 +42,10 @@ function ShowAdvertiser() {
   const theme = useTheme();
   const [advertisers, setAdvertisers] = useState<Advertiser[]>([]);
   const [managers, setManagers] = useState<Manager[]>([]);
-  const [searchAdvertiser, setSearchAdvertiser] = useState("");
-  const [searchManager, setSearchManager] = useState("");
+  const [advertiserSearch, setAdvertiserSearch] = useState("");
+const [showAdvertiserSuggestions, setShowAdvertiserSuggestions] = useState(false);
+  const [managerSearch, setManagerSearch] = useState("");
+const [showManagerSuggestions, setShowManagerSuggestions] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAdvertiser, setSelectedAdvertiser] = useState<any>(null);
 
@@ -140,10 +142,8 @@ function ShowAdvertiser() {
 
   const filteredAdvertisers = advertisers.filter(
     (ad) =>
-      ad.Advertiser.toLowerCase().includes(searchAdvertiser.toLowerCase()) &&
-      getManagerName(ad.AccountManagerID)
-        .toLowerCase()
-        .includes(searchManager.toLowerCase()),
+      ad.Advertiser.toLowerCase().includes(advertiserSearch.toLowerCase()) &&
+      getManagerName(ad.AccountManagerID).toLowerCase().includes(managerSearch.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredAdvertisers.length / itemsPerPage);
@@ -447,6 +447,52 @@ function ShowAdvertiser() {
     }
   };
 
+
+  const handleAdvertiserSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setAdvertiserSearch(value);
+
+  if (value.length > 0) {
+    setShowAdvertiserSuggestions(true);
+  } else {
+    setShowAdvertiserSuggestions(false);
+  }
+};
+
+const handleAdvertiserFocus = () => {
+  setShowAdvertiserSuggestions(true);
+};
+
+const handleAdvertiserBlur = () => {
+  setTimeout(() => {
+    setShowAdvertiserSuggestions(false);
+  }, 200); // delay para permitir el click
+};
+
+const selectAdvertiser = (advertiser: Advertiser) => {
+  setAdvertiserSearch(advertiser.Advertiser);
+  setShowAdvertiserSuggestions(false);
+};
+
+const handleManagerSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setManagerSearch(value);
+  setShowManagerSuggestions(value.length > 0);
+};
+
+const handleManagerFocus = () => {
+  setShowManagerSuggestions(true);
+};
+
+const handleManagerBlur = () => {
+  setTimeout(() => setShowManagerSuggestions(false), 200);
+};
+
+const selectManager = (manager: Manager) => {
+  setManagerSearch(manager.AccountManager);
+  setShowManagerSuggestions(false);
+};
+
   return (
     <Box sx={{ p: 3, bgcolor: 'background.default', borderRadius: 2, boxShadow: 1, color: theme.palette.text.primary }}>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -455,25 +501,123 @@ function ShowAdvertiser() {
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: '1fr 1fr 1fr' }, gap: 2, bgcolor: 'background.paper', p: 2, borderRadius: 1, color: theme.palette.text.primary }}>
         <Box>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Search advertiser"
-            value={searchAdvertiser}
-            onChange={(e) => setSearchAdvertiser(e.target.value)}
-            sx={{ bgcolor: 'white' }}
-          />
+          <Box sx={{ position: 'relative' }}>
+  <Input
+  fullWidth
+  disableUnderline={false}
+  placeholder="Search advertisers..."
+  value={advertiserSearch}
+  onChange={handleAdvertiserSearchChange}
+  onFocus={handleAdvertiserFocus}
+  onBlur={handleAdvertiserBlur}
+  sx={{
+    fontSize: '1rem',
+    color: theme.palette.text.primary,
+    '&::placeholder': {
+      color: theme.palette.text.disabled,
+      opacity: 1,
+    },
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    transition: 'border-color 0.3s',
+    '&:focus-within': {
+      borderBottom: `2px solid ${theme.palette.primary.main}`,
+    },
+  }}
+/>
+  {showAdvertiserSuggestions && (
+    <Box
+      sx={{
+        position: 'absolute',
+        top: 55,
+        left: 0,
+        right: 0,
+        zIndex: 10,
+        maxHeight: 200,
+        overflowY: 'auto',
+        bgcolor: 'background.paper',
+        boxShadow: 3,
+        borderRadius: 1,
+      }}
+    >
+      {advertisers
+        .filter((adv) =>
+          adv.Advertiser.toLowerCase().includes(advertiserSearch.toLowerCase())
+        )
+        .map((adv) => (
+          <Box
+            key={adv.AdvertiserID}
+            sx={{
+              p: 1,
+              cursor: 'pointer',
+              '&:hover': { bgcolor: 'action.hover' },
+            }}
+            onClick={() => selectAdvertiser(adv)}
+          >
+            {adv.Advertiser}
+          </Box>
+        ))}
+    </Box>
+  )}
+</Box>
         </Box>
-        <Box>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Search account manager"
-            value={searchManager}
-            onChange={(e) => setSearchManager(e.target.value)}
-            sx={{ bgcolor: 'white' }}
-          />
-        </Box>
+       <Box sx={{ position: 'relative' }}>
+  <Input
+    fullWidth
+    disableUnderline={false}
+    placeholder="Search account manager"
+    value={managerSearch}
+    onChange={handleManagerSearchChange}
+    onFocus={handleManagerFocus}
+    onBlur={handleManagerBlur}
+    sx={{
+      fontSize: '1rem',
+      color: theme.palette.text.primary,
+      '&::placeholder': {
+        color: theme.palette.text.disabled,
+        opacity: 1,
+      },
+      borderBottom: `1px solid ${theme.palette.divider}`,
+      transition: 'border-color 0.3s',
+      '&:focus-within': {
+        borderBottom: `2px solid ${theme.palette.primary.main}`,
+      },
+    }}
+  />
+  {showManagerSuggestions && (
+    <Box
+      sx={{
+        position: 'absolute',
+        top: 50,
+        left: 0,
+        right: 0,
+        zIndex: 10,
+        maxHeight: 200,
+        overflowY: 'auto',
+        bgcolor: 'background.paper',
+        boxShadow: 3,
+        borderRadius: 1,
+      }}
+    >
+      {managers
+        .filter((manager) =>
+          manager.AccountManager.toLowerCase().includes(managerSearch.toLowerCase())
+        )
+        .map((manager) => (
+          <Box
+            key={manager.AccountManagerID}
+            sx={{
+              p: 1,
+              cursor: 'pointer',
+              '&:hover': { bgcolor: 'action.hover' },
+            }}
+            onClick={() => selectManager(manager)}
+          >
+            {manager.AccountManager}
+          </Box>
+        ))}
+    </Box>
+  )}
+</Box>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button
             onClick={handleOpenAddModal}

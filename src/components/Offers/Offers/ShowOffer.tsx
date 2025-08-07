@@ -5,7 +5,7 @@ import { getSuppliers, getAdvertisers } from "@/app/api/filtersService/filtersSe
 import { getOffers, createOrUpdateOffer, changeStatusOffer } from "@/app/api/offer/service";
 import { getCampaignsByAdvertiserID, getAllCampaigns } from "@/app/api/campaign/service";
 import { Box, Button, Select, MenuItem, Input, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, useTheme, TextareaAutosize, Tooltip, SelectChangeEvent } from "@mui/material";
-import apiClient from "@/libs/axiosConfig";
+import ClickAwayListener from '@mui/material/ClickAwayListener';
 
 // Definimos las interfaces para los datos
 interface Advertiser {
@@ -107,11 +107,13 @@ const ShowOffers: React.FC = () => {
   // Estados para los datos de los selects
   const [advertisers, setAdvertisers] = useState<Advertiser[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-
+  const [showPublisherSuggestions, setShowPublisherSuggestions] = useState(false);
+  const [showAdvertiserSuggestions, setShowAdvertiserSuggestions] = useState(false);
   // Estado para las ofertas y métricas
   const [offers, setOffers] = useState<Offer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [resulConsult, setResulConsult] = useState("Record count 0");
+
   const [totalTime, setTotalTime] = useState("0 seg.");
   const [totalSize, setTotalSize] = useState("0 Kb.");
 
@@ -790,31 +792,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
     handleOpenAddSupplierModal();
   };
 
-  const sendEmailOffers = async (offersList: string[]) => {
-  if (offersList.length === 0) {
-    alert("No offers selected to send.");
-    return;
-  }
-
-  const Offers = offersList.join(",");
-  const endpoint = `/reports/offers?Offers=${Offers}&output=email`;
-
-  try {
-    const response = await apiClient.get(endpoint);
-    const result = response.data.result;
-
-    result.forEach((item: any) => {
-      if (item.success) {
-        alert(`✅ ${item.Offer}`);
-      } else {
-        alert(`❌ ${item.error}`);
-      }
-    });
-  } catch (error: any) {
-    alert("Error sending email: " + (error?.message || "Unknown error"));
-  }
-};
-
   return (
     <Box sx={{ p: 3, bgcolor: "background.default", borderRadius: 2, boxShadow: 1, color: theme.palette.text.primary }}>
       <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -835,95 +812,159 @@ Status: ${selectedOfferForDetails.status || "N/A"}
           color: theme.palette.text.primary,
         }}
       >
-        <Box sx={{ position: "relative" }}>
-          <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
-            Advertisers
-          </label>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Select
-              fullWidth
-              value={advertiser}
-              onChange={(e) => setAdvertiser(e.target.value)}
-              sx={{
-                height: 48,
-                bgcolor: "background.paper",
-                "& .MuiSelect-select": { color: theme.palette.text.primary },
-                "& .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.divider },
-                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
-              }}
-              displayEmpty
-            >
-              <MenuItem value="" disabled>
-                Select...
-              </MenuItem>
-              {advertisers.map((adv) => (
-                <MenuItem key={adv.AdvertiserID} value={adv.AdvertiserID}>
-                  {adv.Advertiser}
-                </MenuItem>
-              ))}
-            </Select>
-            {advertiser && (
-              <Button
-                onClick={() => handleClear("advertiser")}
+        
+        <ClickAwayListener onClickAway={() => setShowAdvertiserSuggestions(false)}>
+  <Box sx={{ position: "relative" }}>
+    <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
+      Advertiser
+    </label>
+    <Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
+      <Input
+        fullWidth
+        placeholder="Search advertisers..."
+        value={
+          advertisers.find((a) => a.AdvertiserID.toString() === selectedAdvertiser)?.Advertiser || selectedAdvertiser
+        }
+        onChange={(e) => setSelectedAdvertiser(e.target.value)}
+        onFocus={() => setShowAdvertiserSuggestions(true)}
+        sx={{ height: 48 }}
+      />
+      {selectedAdvertiser && (
+        <Button
+          onClick={() => handleClear("advertiser")}
+          sx={{
+            minWidth: 40,
+            height: 40,
+            ml: 1,
+            bgcolor: theme.palette.grey[300],
+            color: theme.palette.text.primary,
+            "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
+          }}
+        >
+          <FaTrash />
+        </Button>
+      )}
+      {showAdvertiserSuggestions && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            zIndex: 10,
+            width: "100%",
+            bgcolor: "background.paper",
+            boxShadow: 3,
+            borderRadius: 1,
+            mt: 1,
+            maxHeight: 200,
+            overflowY: "auto",
+          }}
+        >
+          {advertisers
+            .filter((a) =>
+              a.Advertiser.toLowerCase().includes(selectedAdvertiser.toLowerCase())
+            )
+            .map((a) => (
+              <Box
+                key={a.AdvertiserID}
+                onClick={() => {
+                  setSelectedAdvertiser(a.AdvertiserID.toString());
+                  setShowAdvertiserSuggestions(false);
+                }}
                 sx={{
-                  minWidth: 40,
-                  height: 40,
-                  ml: 1,
-                  bgcolor: theme.palette.grey[300],
-                  color: theme.palette.text.primary,
-                  "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
+                  px: 2,
+                  py: 1,
+                  cursor: "pointer",
+                  "&:hover": {
+                    bgcolor: "action.hover",
+                  },
                 }}
               >
-                <FaTrash />
-              </Button>
-            )}
-          </Box>
+                {a.Advertiser}
+              </Box>
+            ))}
         </Box>
+      )}
+    </Box>
+  </Box>
+</ClickAwayListener>
 
-        <Box sx={{ position: "relative" }}>
-          <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
-            Supplier
-          </label>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Select
-              fullWidth
-              value={supplier}
-              onChange={(e) => setSupplier(e.target.value)}
-              sx={{
-                height: 48,
-                bgcolor: "background.paper",
-                "& .MuiSelect-select": { color: theme.palette.text.primary },
-                "& .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.divider },
-                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
-              }}
-              displayEmpty
-            >
-              <MenuItem value="" disabled>
-                Select...
-              </MenuItem>
-              {suppliers.map((sup) => (
-                <MenuItem key={sup.SupplierID} value={sup.SupplierID}>
-                  {sup.Supplier}
-                </MenuItem>
-              ))}
-            </Select>
-            {supplier && (
-              <Button
-                onClick={() => handleClear("supplier")}
+
+       <ClickAwayListener onClickAway={() => setShowPublisherSuggestions(false)}>
+  <Box sx={{ position: "relative" }}>
+    <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
+      Supplier
+    </label>
+    <Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
+      <Input
+        fullWidth
+        placeholder="Search suppliers..."
+        value={
+          suppliers.find((s) => s.SupplierID.toString() === supplier)?.Supplier || supplier
+        }
+        onChange={(e) => setSupplier(e.target.value)}
+        onFocus={() => setShowPublisherSuggestions(true)}
+        sx={{ height: 48 }}
+      />
+      {supplier && (
+        <Button
+          onClick={() => handleClear("supplier")}
+          sx={{
+            minWidth: 40,
+            height: 40,
+            ml: 1,
+            bgcolor: theme.palette.grey[300],
+            color: theme.palette.text.primary,
+            "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
+          }}
+        >
+          <FaTrash />
+        </Button>
+      )}
+      {showPublisherSuggestions && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            zIndex: 10,
+            width: "100%",
+            bgcolor: "background.paper",
+            boxShadow: 3,
+            borderRadius: 1,
+            mt: 1,
+            maxHeight: 200,
+            overflowY: "auto",
+          }}
+        >
+          {suppliers
+            .filter((s) =>
+              s.Supplier.toLowerCase().includes(supplier.toLowerCase())
+            )
+            .map((s) => (
+              <Box
+                key={s.SupplierID}
+                onClick={() => {
+                  setSupplier(s.SupplierID.toString());
+                  setShowPublisherSuggestions(false);
+                }}
                 sx={{
-                  minWidth: 40,
-                  height: 40,
-                  ml: 1,
-                  bgcolor: theme.palette.grey[300],
-                  color: theme.palette.text.primary,
-                  "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
+                  px: 2,
+                  py: 1,
+                  cursor: "pointer",
+                  "&:hover": {
+                    bgcolor: "action.hover",
+                  },
                 }}
               >
-                <FaTrash />
-              </Button>
-            )}
-          </Box>
+                {s.Supplier}
+              </Box>
+            ))}
         </Box>
+      )}
+    </Box>
+  </Box>
+</ClickAwayListener>
 
         <Box sx={{ position: "relative" }}>
           <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
@@ -1677,24 +1718,16 @@ Status: ${selectedOfferForDetails.status || "N/A"}
               )}
               <Box sx={{ color: theme.palette.text.primary, fontSize: "1rem" }}>{confirmationMessage}</Box>
             </Box>
-           <Box display="flex" justifyContent="flex-end" gap={2} mt={3}>
-  <Button onClick={handleCloseConfirmationModal} variant="outlined">
-    Close
-  </Button>
-
-  <Button
-  variant="outlined"
-  color="secondary"
-  onClick={() => {
-    const offerIDs = offerForms
-      .filter((form) => form.offerId)
-      .map((form) => form.offerId);
-    sendEmailOffers(offerIDs);
-  }}
->
-  Send Email
-</Button>
-
+            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 4 }}>
+              <Button
+                onClick={handleCloseConfirmationModal}
+                variant="outlined"
+                color="inherit"
+                size="medium"
+                sx={{ minWidth: 100, height: 40 }}
+              >
+                Close
+              </Button>
               <Button
                 onClick={handleNewOffers}
                 variant="contained"
@@ -1704,7 +1737,6 @@ Status: ${selectedOfferForDetails.status || "N/A"}
               >
                 New Offers
               </Button>
-             
             </Box>
           </Box>
         </Box>
@@ -1806,7 +1838,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                 </Box>
                 <Box>
                   <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: 1 }}>
-                    Supplier
+                    Suppliers
                   </label>
                   <Select
                     fullWidth
