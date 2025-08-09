@@ -370,8 +370,7 @@ const ShowOffers: React.FC = () => {
       const response: CreateOfferResponse = await createOrUpdateOffer("POST", offerDataList);
       
       let strOfferIdsByEmail = "";
-      response.result.forEach((element) => {
-        let r = element
+      response.result.forEach((element: any) => {
         if (element.status === "OK") {
           strOfferIdsByEmail += element.result.OfferID + ",";
         }

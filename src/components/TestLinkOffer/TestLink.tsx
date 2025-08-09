@@ -15,7 +15,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   width: '100%',
   maxWidth: 500,
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: Number(theme.shape.borderRadius) * 2,
   boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
   background: 'white',
 }));
@@ -39,13 +39,13 @@ const SubtitleTypography = styled(Typography)(({ theme }) => ({
 const StyledTextField = styled(TextField)(({ theme }) => ({
   marginBottom: theme.spacing(3),
   '& .MuiOutlinedInput-root': {
-    borderRadius: theme.shape.borderRadius * 1.5,
+    borderRadius: Number(theme.shape.borderRadius) * 1.5,
   },
 }));
 
 const RunButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
-  borderRadius: theme.shape.borderRadius * 1.5,
+  borderRadius: Number(theme.shape.borderRadius) * 1.5,
   padding: theme.spacing(1.5),
   fontWeight: 600,
 }));
