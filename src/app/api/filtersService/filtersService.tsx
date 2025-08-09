@@ -299,3 +299,19 @@ export const getDashboardChartData = async () => {
   }
 };
 
+export const sendMailSupplier = async (offerIdsByEmail: string) => {
+  try {
+    let params = `Offers=${offerIdsByEmail}&output=email`
+    const url = `/reports/offers?${params}`
+    
+    const response = await apiClient.get(url, {
+      headers: {
+        "Access-Token": localStorage.getItem("accessToken"),
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error sending mail supplier:", error);
+    throw error;
+  }
+}

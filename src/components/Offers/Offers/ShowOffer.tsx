@@ -5,21 +5,25 @@ import { getSuppliers, getAdvertisers } from "@/app/api/filtersService/filtersSe
 import { getOffers, createOrUpdateOffer, changeStatusOffer } from "@/app/api/offer/service";
 import { getCampaignsByAdvertiserID, getAllCampaigns } from "@/app/api/campaign/service";
 import { Box, Button, Select, MenuItem, Input, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, useTheme, TextareaAutosize, Tooltip, SelectChangeEvent } from "@mui/material";
+import { sendMailSupplier } from "@/app/api/filtersService/filtersService";
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 
 interface Advertiser {
   AdvertiserID: number;
   Advertiser: string;
 }
+
 interface Supplier {
   SupplierID: number;
   Supplier: string;
   PostBackURL: string;
 }
+
 interface Campaign {
   CampaignID: string;
   CampaignName: string;
 }
+
 interface Offer {
   OfferId: string;
   AccountManager: string;
@@ -49,6 +53,7 @@ interface Offer {
   DailyQuantity?: string;
   Advertiser: string;
 }
+
 interface CampaignData {
   Campaign: string;
   CampaignID: string;
@@ -61,6 +66,7 @@ interface CampaignData {
   CampaignTypeID: string;
   URL: string;
 }
+
 interface OfferFormData {
   campaign: string;
   campaignId: string;
@@ -80,11 +86,13 @@ interface OfferFormData {
   offer: string;
   offerId: string;
 }
+
 interface OfferResult {
   status: "OK" | "Error";
   message?: string;
   Offer?: string;
 }
+
 interface CreateOfferResponse {
   result: OfferResult[];
 }
@@ -357,17 +365,32 @@ const ShowOffers: React.FC = () => {
         Proxy: form.proxy,
         StatusID: form.statusId,
         SupplierID: form.supplierId,
-      }));
+      }))
+
       const response: CreateOfferResponse = await createOrUpdateOffer("POST", offerDataList);
+      
+      let strOfferIdsByEmail = "";
+      response.result.forEach((element) => {
+        let r = element
+        if (element.status === "OK") {
+          strOfferIdsByEmail += element.result.OfferID + ",";
+        }
+      })
+      
       if (response.result && Array.isArray(response.result)) {
         const successfulOffers = response.result.filter((res) => res.status === "OK");
         const failedOffers = response.result.filter((res) => res.status === "Error");
+        
         if (successfulOffers.length === response.result.length) {
           setConfirmationStatus("success");
           setConfirmationMessage("All offers created successfully!");
+          strOfferIdsByEmail = strOfferIdsByEmail.slice(0, -1);
+          await sendMailSupplier(strOfferIdsByEmail);
         } else if (failedOffers.length === response.result.length) {
           setConfirmationStatus("error");
           setConfirmationMessage("Failed to create offers. They may already exist.");
+          strOfferIdsByEmail = strOfferIdsByEmail.slice(0, -1);
+          await sendMailSupplier(strOfferIdsByEmail);
         } else {
           setConfirmationStatus("mixed");
           setConfirmationMessage(
