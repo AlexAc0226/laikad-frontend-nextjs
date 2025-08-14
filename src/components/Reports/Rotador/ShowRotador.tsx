@@ -6,7 +6,7 @@ import { getAdvertisers, getSuppliers } from "@/app/api/filtersService/filtersSe
 import { getReportRotador } from "@/app/api/report/service";
 import * as XLSX from "xlsx";
 import { Box, Button, Select, MenuItem, Input, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, useTheme } from "@mui/material";
-
+import ClickAwayListener from '@mui/material/ClickAwayListener';
 interface RotadorInterface {
   Campaign: string;
   CreationDate: string;
@@ -40,7 +40,8 @@ const ShowRotador: React.FC = () => {
   const [dateTo, setDateTo] = useState(today);
   const [reportInfo, setReportInfo] = useState<RotadorInterface[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
+const [showAdvertiserSuggestions, setShowAdvertiserSuggestions] = useState(false);
+const [showPublisherSuggestions, setShowPublisherSuggestions] = useState(false);
   const fetchData = async () => {
     try {
       const [advertisersResponse, suppliersResponse] = await Promise.all([
@@ -143,93 +144,158 @@ const ShowRotador: React.FC = () => {
           color: theme.palette.text.primary,
         }}
       >
-        <Box sx={{ position: "relative" }}>
-          <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: '8px' }}>
-            Advertiser
-          </label>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Select
-              fullWidth
-              value={selectedAdvertiser}
-              onChange={(e) => setSelectedAdvertiser(e.target.value)}
-              sx={{
-                height: 48,
-                bgcolor: "background.paper",
-                "& .MuiSelect-select": { color: theme.palette.text.primary },
-                "& .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.divider },
-                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
-              }}
-              displayEmpty
-            >
-              <MenuItem value="" disabled> 
-              </MenuItem>
-              {listAdvertisers.map((advertiser) => (
-                <MenuItem key={advertiser.AdvertiserID} value={advertiser.AdvertiserID}>
-                  {advertiser.Advertiser}
-                </MenuItem>
-              ))}
-            </Select>
-            {selectedAdvertiser && (
-              <Button
-                onClick={() => handleClear("advertiser")}
+      <ClickAwayListener onClickAway={() => setShowAdvertiserSuggestions(false)}>
+  <Box sx={{ position: "relative" }}>
+    <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: '8px' }}>
+      Advertiser
+    </label>
+    <Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
+      <Input
+        fullWidth
+        placeholder="Search advertisers..."
+        value={
+          listAdvertisers.find((a) => a.AdvertiserID.toString() === selectedAdvertiser)?.Advertiser || selectedAdvertiser
+        }
+        onChange={(e) => setSelectedAdvertiser(e.target.value)}
+        onFocus={() => setShowAdvertiserSuggestions(true)}
+        sx={{ height: 48 }}
+      />
+      {selectedAdvertiser && (
+        <Button
+          onClick={() => handleClear("advertiser")}
+          sx={{
+            minWidth: 40,
+            height: 40,
+            ml: 1,
+            bgcolor: theme.palette.grey[300],
+            color: theme.palette.text.primary,
+            "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
+          }}
+        >
+          <FaTrash />
+        </Button>
+      )}
+      {showAdvertiserSuggestions && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            zIndex: 10,
+            width: "100%",
+            bgcolor: "background.paper",
+            boxShadow: 3,
+            borderRadius: 1,
+            mt: 1,
+            maxHeight: 200,
+            overflowY: "auto",
+          }}
+        >
+          {listAdvertisers
+            .filter((a) =>
+              a.Advertiser.toLowerCase().includes(selectedAdvertiser.toLowerCase())
+            )
+            .map((a) => (
+              <Box
+                key={a.AdvertiserID}
+                onClick={() => {
+                  setSelectedAdvertiser(a.AdvertiserID.toString());
+                  setShowAdvertiserSuggestions(false);
+                }}
                 sx={{
-                  minWidth: 40,
-                  height: 40,
-                  ml: 1,
-                  bgcolor: theme.palette.grey[300],
-                  color: theme.palette.text.primary,
-                  "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
+                  px: 2,
+                  py: 1,
+                  cursor: "pointer",
+                  "&:hover": {
+                    bgcolor: "action.hover",
+                  },
                 }}
               >
-                <FaTrash />
-              </Button>
-            )}
-          </Box>
+                {a.Advertiser}
+              </Box>
+            ))}
         </Box>
+      )}
+    </Box>
+  </Box>
+</ClickAwayListener>
 
-        <Box sx={{ position: "relative" }}>
-          <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: '8px' }}>
-            Publisher
-          </label>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Select
-              fullWidth
-              value={selectedPublisher}
-              onChange={(e) => setSelectedPublisher(e.target.value)}
-              sx={{
-                height: 48,
-                bgcolor: "background.paper",
-                "& .MuiSelect-select": { color: theme.palette.text.primary },
-                "& .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.divider },
-                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
-              }}
-              displayEmpty
-            >
-              <MenuItem value="" disabled>
-              </MenuItem>
-              {listPublishers.map((publisher) => (
-                <MenuItem key={publisher.SupplierID} value={publisher.SupplierID}>
-                  {publisher.Supplier}
-                </MenuItem>
-              ))}
-            </Select>
-            {selectedPublisher && (
-              <Button
-                onClick={() => handleClear("publisher")}
+
+        <ClickAwayListener onClickAway={() => setShowPublisherSuggestions(false)}>
+  <Box sx={{ position: "relative" }}>
+    <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: '8px' }}>
+      Publisher
+    </label>
+    <Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
+      <Input
+        fullWidth
+        placeholder="Search publishers..."
+        value={
+          listPublishers.find((p) => p.SupplierID.toString() === selectedPublisher)?.Supplier || selectedPublisher
+        }
+        onChange={(e) => setSelectedPublisher(e.target.value)}
+        onFocus={() => setShowPublisherSuggestions(true)}
+        sx={{ height: 48 }}
+      />
+      {selectedPublisher && (
+        <Button
+          onClick={() => handleClear("publisher")}
+          sx={{
+            minWidth: 40,
+            height: 40,
+            ml: 1,
+            bgcolor: theme.palette.grey[300],
+            color: theme.palette.text.primary,
+            "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
+          }}
+        >
+          <FaTrash />
+        </Button>
+      )}
+      {showPublisherSuggestions && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            zIndex: 10,
+            width: "100%",
+            bgcolor: "background.paper",
+            boxShadow: 3,
+            borderRadius: 1,
+            mt: 1,
+            maxHeight: 200,
+            overflowY: "auto",
+          }}
+        >
+          {listPublishers
+            .filter((p) =>
+              p.Supplier.toLowerCase().includes(selectedPublisher.toLowerCase())
+            )
+            .map((p) => (
+              <Box
+                key={p.SupplierID}
+                onClick={() => {
+                  setSelectedPublisher(p.SupplierID.toString());
+                  setShowPublisherSuggestions(false);
+                }}
                 sx={{
-                  minWidth: 40,
-                  height: 40,
-                  ml: 1,
-                  bgcolor: theme.palette.grey[300],
-                  color: theme.palette.text.primary,
-                  "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
+                  px: 2,
+                  py: 1,
+                  cursor: "pointer",
+                  "&:hover": {
+                    bgcolor: "action.hover",
+                  },
                 }}
               >
-                <FaTrash />
-              </Button>
-            )}
-          </Box>
+                {p.Supplier}
+              </Box>
+            ))}
         </Box>
+      )}
+    </Box>
+  </Box>
+</ClickAwayListener>
 
         <Box sx={{ position: "relative" }}>
           <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: '8px' }}>

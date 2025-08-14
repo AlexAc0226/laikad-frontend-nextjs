@@ -50,6 +50,27 @@ const menuGroups = [
       {
         icon: (
           <svg
+            className="fill-current"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM11 7H13V13H11V7ZM11 15H13V17H11V15Z"
+              fill="currentColor"
+            />
+          </svg>
+        ),
+        label: 'Test Link',
+        route: '/test-link',
+      },
+      {
+        icon: (
+          <svg
             className="text- fill-current"
             width="24"
             height="24"
@@ -480,6 +501,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     'Messages': ['9'],
     'Inbox': ['9'],
     'Authentication': ['', '2', '3', '7', '8', '9'],
+    'Test Link': ['9'],
   };
   
   const routeAccess: { [route: string]: string[] } = {
@@ -497,6 +519,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     '/dashboard/dashboardRequestOff': ['8'],
     '/dashboard/dashboardAdvertiser': ['7'],
     '/dashboard/dashboardAdvCampaing': ['7'],
+    '/test-link': ['9'],
   };
 
   const canAccessItem = (label: string, route: string, roleId: string | null, children?: { label: string; route: string }[]) => {

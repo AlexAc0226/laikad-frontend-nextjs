@@ -6,6 +6,8 @@ import { getCampaignsByAdvertiserID } from "@/app/api/campaign/service";
 import { getOffers } from "@/app/api/offer/service";
 import * as XLSX from "xlsx";
 import { Box, Button, Select, MenuItem, Input, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, useTheme, Checkbox, TextareaAutosize } from "@mui/material";
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+
 
 interface Advertiser {
   AdvertiserID: number;
@@ -55,8 +57,10 @@ const ShowBlacklist: React.FC = () => {
   const [resulConsult, setResulConsult] = useState("");
   const [totalTime, setTotalTime] = useState("");
   const [totalSize, setTotalSize] = useState("");
+  const [showAdvertiserSuggestions, setShowAdvertiserSuggestions] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [subPubIDsInput, setSubPubIDsInput] = useState("");
+  const [showSupplierSuggestions, setShowSupplierSuggestions] = useState(false);
   const [reason, setReason] = useState("");
   const [isSupplierDisabled, setIsSupplierDisabled] = useState(false);
   const [isAdvertiserDisabled, setIsAdvertiserDisabled] = useState(false);
@@ -682,95 +686,170 @@ const ShowBlacklist: React.FC = () => {
       </Box>
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: '1fr 1fr 1fr 1fr 1fr' }, gap: 2, bgcolor: 'background.paper', p: 2, borderRadius: 1, color: theme.palette.text.primary }}>
-        <Box sx={{ position: 'relative' }}>
-           <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
-            Advertisers
-          </label>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Select
-              fullWidth
-              value={advertiser}
-              onChange={(e) => handleAdvertiserChange(e.target.value)}
-              disabled={isAdvertiserDisabled}
-              sx={{
-                height: 48,
-                bgcolor: 'background.paper',
-                '& .MuiSelect-select': { color: theme.palette.text.primary },
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.primary.main },
-                opacity: isAdvertiserDisabled ? 0.5 : 1,
-              }}
-              displayEmpty
-            >
-              <MenuItem value="" disabled>Select...</MenuItem>
-              {advertisers.map((adv) => (
-                <MenuItem key={adv.AdvertiserID} value={adv.AdvertiserID}>
-                  {adv.Advertiser}
-                </MenuItem>
-              ))}
-            </Select>
-            {advertiser && !isAdvertiserDisabled && (
-              <Button
-                onClick={() => handleClear("advertiser")}
-                sx={{
-                  minWidth: 40,
-                  height: 40,
-                  ml: 1,
-                  bgcolor: theme.palette.grey[300],
-                  color: theme.palette.text.primary,
-                  '&:hover': { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
-                }}
-              >
-                <FaTrash />
-              </Button>
-            )}
-          </Box>
-        </Box>
+        
+        <ClickAwayListener onClickAway={() => setShowAdvertiserSuggestions(false)}>
+  <Box sx={{ position: "relative" }}>
+    <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
+      Advertisers
+    </label>
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Input
+        fullWidth
+        placeholder="Search advertisers..."
+        disabled={isAdvertiserDisabled}
+        value={
+          advertisers.find((a) => a.AdvertiserID.toString() === advertiser)?.Advertiser || advertiser
+        }
+        onChange={(e) => handleAdvertiserChange(e.target.value)}
+        onFocus={() => setShowAdvertiserSuggestions(true)}
+        sx={{
+          height: 48,
+          opacity: isAdvertiserDisabled ? 0.5 : 1,
+        }}
+      />
+      {advertiser && !isAdvertiserDisabled && (
+        <Button
+          onClick={() => handleClear("advertiser")}
+          sx={{
+            minWidth: 40,
+            height: 40,
+            ml: 1,
+            bgcolor: theme.palette.grey[300],
+            color: theme.palette.text.primary,
+            "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
+          }}
+        >
+          <FaTrash />
+        </Button>
+      )}
+    </Box>
 
-        <Box sx={{ position: 'relative' }}>
-           <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
-            Supplier
-          </label>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Select
-              fullWidth
-              value={supplier}
-              onChange={(e) => handleSupplierChange(e.target.value)}
-              disabled={isSupplierDisabled}
-              sx={{
-                height: 48,
-                bgcolor: 'background.paper',
-                '& .MuiSelect-select': { color: theme.palette.text.primary },
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.primary.main },
-                opacity: isSupplierDisabled ? 0.5 : 1,
+    {showAdvertiserSuggestions && !isAdvertiserDisabled && (
+      <Box
+        sx={{
+          position: "absolute",
+          top: "100%",
+          left: 0,
+          zIndex: 10,
+          width: "100%",
+          bgcolor: "background.paper",
+          boxShadow: 3,
+          borderRadius: 1,
+          mt: 1,
+          maxHeight: 200,
+          overflowY: "auto",
+        }}
+      >
+        {advertisers
+          .filter((a) =>
+            a.Advertiser.toLowerCase().includes(advertiser.toLowerCase())
+          )
+          .map((a) => (
+            <Box
+              key={a.AdvertiserID}
+              onClick={() => {
+                handleAdvertiserChange(a.AdvertiserID.toString());
+                setShowAdvertiserSuggestions(false);
               }}
-              displayEmpty
+              sx={{
+                px: 2,
+                py: 1,
+                cursor: "pointer",
+                "&:hover": {
+                  bgcolor: "action.hover",
+                },
+              }}
             >
-              <MenuItem value="" disabled>Select...</MenuItem>
-              {suppliers.map((sup) => (
-                <MenuItem key={sup.SupplierID} value={sup.SupplierID}>
-                  {sup.Supplier}
-                </MenuItem>
-              ))}
-            </Select>
-            {supplier && !isSupplierDisabled && (
-              <Button
-                onClick={() => handleClear("supplier")}
-                sx={{
-                  minWidth: 40,
-                  height: 40,
-                  ml: 1,
-                  bgcolor: theme.palette.grey[300],
-                  color: theme.palette.text.primary,
-                  '&:hover': { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
-                }}
-              >
-                <FaTrash />
-              </Button>
-            )}
-          </Box>
-        </Box>
+              {a.Advertiser}
+            </Box>
+          ))}
+      </Box>
+    )}
+  </Box>
+</ClickAwayListener>
+
+
+        <ClickAwayListener onClickAway={() => setShowSupplierSuggestions(false)}>
+  <Box sx={{ position: "relative" }}>
+    <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
+      Supplier
+    </label>
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Input
+        fullWidth
+        placeholder="Search supplier..."
+        disabled={isSupplierDisabled}
+        value={
+          suppliers.find((s) => s.SupplierID.toString() === supplier)?.Supplier || supplier
+        }
+        onChange={(e) => handleSupplierChange(e.target.value)}
+        onFocus={() => setShowSupplierSuggestions(true)}
+        sx={{
+          height: 48,
+          opacity: isSupplierDisabled ? 0.5 : 1,
+        }}
+      />
+      {supplier && !isSupplierDisabled && (
+        <Button
+          onClick={() => handleClear("supplier")}
+          sx={{
+            minWidth: 40,
+            height: 40,
+            ml: 1,
+            bgcolor: theme.palette.grey[300],
+            color: theme.palette.text.primary,
+            "&:hover": { bgcolor: theme.palette.error.main, color: theme.palette.error.contrastText },
+          }}
+        >
+          <FaTrash />
+        </Button>
+      )}
+    </Box>
+
+    {showSupplierSuggestions && !isSupplierDisabled && (
+      <Box
+        sx={{
+          position: "absolute",
+          top: "100%",
+          left: 0,
+          zIndex: 10,
+          width: "100%",
+          bgcolor: "background.paper",
+          boxShadow: 3,
+          borderRadius: 1,
+          mt: 1,
+          maxHeight: 200,
+          overflowY: "auto",
+        }}
+      >
+        {suppliers
+          .filter((s) =>
+            s.Supplier.toLowerCase().includes(supplier.toLowerCase())
+          )
+          .map((s) => (
+            <Box
+              key={s.SupplierID}
+              onClick={() => {
+                handleSupplierChange(s.SupplierID.toString());
+                setShowSupplierSuggestions(false);
+              }}
+              sx={{
+                px: 2,
+                py: 1,
+                cursor: "pointer",
+                "&:hover": {
+                  bgcolor: "action.hover",
+                },
+              }}
+            >
+              {s.Supplier}
+            </Box>
+          ))}
+      </Box>
+    )}
+  </Box>
+</ClickAwayListener>
+
 
         <Box sx={{ position: 'relative' }}>
            <label className="block text-sm font-medium mb-1" style={{ color: theme.palette.text.secondary }}>
