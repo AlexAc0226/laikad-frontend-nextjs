@@ -2,7 +2,7 @@
 import { getAdvertisers, getCampaignHeads, getCampaignById, getCampaignCategories } from "@/app/api/filtersService/filtersService";
 import apiClient from "@/libs/axiosConfig";
 import arrayHeadCategoies from "@/libs/headCategories";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,KeyboardEvent } from "react";
 import { FaTrash, FaPlus, FaSync, FaEdit, FaPause, FaPlay } from "react-icons/fa";
 import { AiFillApple, AiFillAndroid } from "react-icons/ai";
 import { FiGlobe } from "react-icons/fi";
@@ -10,6 +10,8 @@ import { FiGlobe } from "react-icons/fi";
 import { changeStatusCampaign, deleteCampaign } from "@/app/api/campaign/service";
 import { Box, Button, Select, MenuItem, Input, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, useTheme } from "@mui/material";
 import CreateCampaigns from "./CreateCampaigns";
+
+
 
 interface Campaign {
   CampaignID: number;
@@ -81,6 +83,8 @@ const ShowCampaigns: React.FC = () => {
   const [isHeadEditModalOpen, setIsHeadEditModalOpen] = useState(false);
   const [showHeadTable, setShowHeadTable] = useState(false);
   const [isStatusChanging, setIsStatusChanging] = useState<{ [key: number]: boolean }>({});
+   const [campaignIdInput, setCampaignIdInput] = useState<string>("");   
+  const [highlightId, setHighlightId] = useState<number | null>(null);  
 
   const listCampaignType = [
     { CampaignTypeID: "CPI", CampaignType: "CPI" },
@@ -495,6 +499,52 @@ const ShowCampaigns: React.FC = () => {
     setIncludeRegions(selected.length > 0);
   };
 
+    const fetchCampaignById = async () => {
+  const raw = campaignIdInput.trim();
+  if (!raw) return;
+
+  const id = Number(raw);
+  if (Number.isNaN(id) || id <= 0) {
+    alert("Ingresá un Campaign ID válido (número mayor a 0).");
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    const { data } = await apiClient.get('/campaigns', {
+      params: { CampaignID: id }, // <-- sin StatusID
+      headers: { "Access-Token": localStorage.getItem("accessToken") },
+    });
+
+    const arr = Array.isArray(data?.result)
+      ? data.result
+      : (data?.result ? [data.result] : []);
+
+    if (arr.length === 0) {
+      setCampaigns([]);
+      setHighlightId(null);
+      alert(`No se encontró campaña con ID ${id}.`);
+      return;
+    }
+
+    setCampaigns(arr as Campaign[]);
+    setHighlightId(id);
+    setShowSuggestions(false);
+    setSelectedCampaign("");
+  } catch (e) {
+    console.error("Error buscando CampaignID:", e);
+    alert("Ocurrió un error buscando la campaña. Revisá la consola para más detalles.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  // <-- ADD: Enter para disparar búsqueda por ID
+  const onCampaignIdKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") fetchCampaignById();
+  };
+
+
   const handleConfirmAdvertiser = () => {
     if (selectedAdvertiser) {
       setShowHeadTable(true);
@@ -861,6 +911,42 @@ const ShowCampaigns: React.FC = () => {
           )}
         </Box>
 
+        {/* 5) NUEVO: Search por Campaign ID */}
+<Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+  <Input
+    fullWidth
+    value={campaignIdInput}
+    onChange={(e) => setCampaignIdInput(e.target.value)}
+    onKeyDown={onCampaignIdKeyDown}
+    placeholder="Search by Campaign ID..."
+    sx={{ height: 48 }}
+    inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+  />
+  <Button
+    onClick={fetchCampaignById}
+    variant="contained"
+    size="medium"
+    sx={{ height: 48, minWidth: 48 }}
+    disabled={isLoading || !campaignIdInput.trim()}
+  >
+    🔎
+  </Button>
+  {!!campaignIdInput && (
+    <Button
+      onClick={() => {
+        setCampaignIdInput("");
+        setHighlightId(null);
+        handleRefresh(); // recarga la lista general
+      }}
+      variant="outlined"
+      size="medium"
+      sx={{ height: 48 }}
+    >
+      Limpiar
+    </Button>
+  )}
+</Box>
+
         <Box>
           <Select
             fullWidth
@@ -1027,7 +1113,11 @@ const ShowCampaigns: React.FC = () => {
                   <TableCell>{renderDeviceIcon(campaign.DeviceID)}</TableCell>
                   <TableCell>{campaign.CampaignType || "N/A"}</TableCell>
                   <TableCell>{campaign.Advertiser || "N/A"}</TableCell>
-                  <TableCell>{campaign.CampaignHead || "N/A"}</TableCell>
+                  <TableCell>
+  {campaign.CampaignHead
+    ? `${campaign.CampaignHead}${campaign.CampaignID ? ` (${campaign.CampaignID})` : ""}`
+    : (campaign.CampaignID ? `(${campaign.CampaignID})` : "N/A")}
+</TableCell>
                   <TableCell>${campaign.Revenue || "0"}</TableCell>
                   <TableCell>${campaign.eventPayOut1 || "0"}</TableCell>
                   <TableCell>{campaign.CampaignCategory || "N/A"}</TableCell>
