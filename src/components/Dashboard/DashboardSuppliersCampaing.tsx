@@ -121,6 +121,20 @@ const DashboardSuppliersCampaing = () => {
             <p><strong>Device:</strong> {selectedCampaign.Device}</p>
             <p><strong>Status:</strong> {selectedCampaign.Status}</p>
             <p><strong>Description:</strong> {selectedCampaign.Description || 'No description available'}</p>
+            <p><strong>TrackingLink: </strong> 
+  {selectedCampaign.url ? (
+    <a 
+      href={selectedCampaign.url} 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      className="text-blue-500 underline"
+    >
+      {selectedCampaign.url}
+    </a>
+  ) : (
+    'No tracking link available'
+  )}
+</p>
             <button onClick={() => setModalOpen(false)} className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg">Close</button>
           </div>
         </div>
