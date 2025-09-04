@@ -72,3 +72,23 @@ export const changeStatusOffer = async (params: any) => {
         throw error;
     }
 }
+
+
+// Request offer Supplier
+export const requestOfferSupplier = async (apikey: string, campaignID: number) => {
+    const queryParams = "ApiKey=" + apikey + "&CampaignID=" + campaignID;
+    try {
+        const response = await apiClient({
+            method: 'POST',
+            url: `pub/v2.0/offers?${queryParams}`,
+            headers: {
+                'Access-Token': localStorage.getItem('accessToken'),
+            },
+        });
+    
+        return response.data;
+    } catch (error) {
+        console.error('Error changing offer status:', error);
+        throw error;
+    }
+}

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Eye, Plus } from "lucide-react";
 import { motion } from "framer-motion";
+import { requestOfferSupplier } from "@/app/api/offer/service";
 
 const additionalCategories = [
   { TypeID: "28", Description: "Action", OrderPriority: "10" },
@@ -73,7 +74,6 @@ const additionalCategories = [
   { TypeID: "99", Description: "Other", OrderPriority: "999" }
 ];
 
-
 const DashboardRequestOff: React.FC = () => {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [requestedCampaigns, setRequestedCampaigns] = useState<any[]>([]);
@@ -96,11 +96,10 @@ const DashboardRequestOff: React.FC = () => {
   const fetchCategories = async () => {
     const res = await axios.get("https://api.laikad.com/api/campaignshead/categories-head?");
     const combined = [...res.data.result, ...additionalCategories];
-const uniqueById = Array.from(new Map(combined.map(cat => [cat.TypeID, cat])).values());
-uniqueById.sort((a, b) => Number(a.OrderPriority || 999) - Number(b.OrderPriority || 999));
-const list = uniqueById.map((c: any) => ({ label: c.Description, value: c.TypeID }));
-setCategories(list);
-    
+    const uniqueById = Array.from(new Map(combined.map(cat => [cat.TypeID, cat])).values());
+    uniqueById.sort((a, b) => Number(a.OrderPriority || 999) - Number(b.OrderPriority || 999));
+    const list = uniqueById.map((c: any) => ({ label: c.Description, value: c.TypeID }));
+    setCategories(list);
   };
 
   const fetchCampaigns = useCallback(async () => {
@@ -114,11 +113,28 @@ setCategories(list);
     setRequestedCampaigns(res.data.result || []);
   };
 
-  const handleAddToRequest = (id: number) => {
+  const handleAddToRequest = async (id: number) => {
+    let apiKey = localStorage.getItem('user');
+    const objUser = JSON.parse(apiKey);
     const alreadyRequested = requestedCampaigns.some((c) => c.CampaignID === id);
+    
     if (!alreadyRequested) {
-      const campaign = campaigns.find((c) => c.CampaignID === id);
-      if (campaign) setRequestedCampaigns((prev) => [...prev, campaign]);
+      try {
+        // Call the requestOfferSupplier API with the campaign ID
+        await requestOfferSupplier(objUser.Supplier.ApiKey, id);
+        
+        // Remove the campaign from the main list
+        setCampaigns((prev) => prev.filter((c) => c.CampaignID !== id));
+        
+        // Add the campaign to the requested campaigns list
+        const campaign = campaigns.find((c) => c.CampaignID === id);
+        if (campaign) {
+          setRequestedCampaigns((prev) => [...prev, campaign]);
+        }
+      } catch (error) {
+        console.error("Error requesting offer:", error);
+        // Optionally, add error handling (e.g., show a toast notification)
+      }
     }
   };
 
@@ -152,12 +168,11 @@ setCategories(list);
           </motion.button>
         </div>
       </div>
-
       <div className="flex flex-wrap gap-4 mb-4">
         <select value={category} onChange={(e) => setCategory(e.target.value)} className="input-select">
-  <option value="">All Categories</option>
-  {categories.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-</select>
+          <option value="">All Categories</option>
+          {categories.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+        </select>
         <select value={device} onChange={(e) => setDevice(e.target.value)} className="input-select">
           <option value="">All Devices</option>
           <option value="iOS">iOS</option>
@@ -174,7 +189,6 @@ setCategories(list);
           className="input-text"
         />
       </div>
-
       <div className="overflow-x-auto">
         <table className="table-auto w-full border text-sm text-left text-gray-600 dark:text-gray-200">
           <thead className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white">
@@ -189,29 +203,28 @@ setCategories(list);
             {displayedCampaigns.map((c, i) => (
               <tr key={i} className="border-b">
                 <td className="px-4 py-2 whitespace-nowrap max-w-[200px] truncate">
-  {c.Offer}
-</td>
+                  {c.Offer}
+                </td>
                 <td className="px-4 py-2">{Array.isArray(c.Countrys) ? c.Countrys.join(", ") : c.Countrys}</td>
                 <td className="px-4 py-2 whitespace-nowrap">
-  <button onClick={() => handleViewDetails(c.CampaignID)} className="btn btn-warning text-xs px-3 py-1">
-    View more
-  </button>
-</td>
-<td className="px-4 py-2 whitespace-nowrap">
-  <button
-    onClick={() => handleAddToRequest(c.CampaignID)}
-    disabled={requestedCampaigns.some(rc => rc.CampaignID === c.CampaignID)}
-    className="btn btn-success text-xs px-3 py-1 disabled:opacity-50"
-  >
-    {requestedCampaigns.some(rc => rc.CampaignID === c.CampaignID) ? "Requested" : "Request Offer"}
-  </button>
-</td>
+                  <button onClick={() => handleViewDetails(c.CampaignID)} className="btn btn-warning text-xs px-3 py-1">
+                    View more
+                  </button>
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap">
+                  <button
+                    onClick={() => handleAddToRequest(c.CampaignID)}
+                    disabled={requestedCampaigns.some(rc => rc.CampaignID === c.CampaignID)}
+                    className="btn btn-success text-xs px-3 py-1 disabled:opacity-50"
+                  >
+                    {requestedCampaigns.some(rc => rc.CampaignID === c.CampaignID) ? "Requested" : "Request Offer"}
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
       {showModal && modalData && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
           <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-md w-full max-w-xl">
