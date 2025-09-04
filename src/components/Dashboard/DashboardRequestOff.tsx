@@ -86,6 +86,8 @@ const DashboardRequestOff: React.FC = () => {
   const [viewRequested, setViewRequested] = useState(false);
   const [modalData, setModalData] = useState<any | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
 
   const fetchCountries = async () => {
     const res = await axios.get("https://api.laikad.com/api/countries?name=&code2=");
@@ -109,9 +111,32 @@ const DashboardRequestOff: React.FC = () => {
   }, [category, device, country]);
 
   const fetchRequestedCampaigns = async () => {
-    const res = await axios.get("https://api.laikad.com/api/pub/v2.0/request_pending?ApiKey=fe6a4c14a20f8d5a18045cd08b66b8fddff16662");
-    setRequestedCampaigns(res.data.result || []);
-  };
+  try {
+    const res = await axios.get(
+      "https://api.laikad.com/api/pub/v2.0/request_pending?ApiKey=fe6a4c14a20f8d5a18045cd08b66b8fddff16662"
+    );
+    const raw = Array.isArray(res.data?.result) ? res.data.result : [];
+
+    // Normalizo keys para que siempre exista CampaignID y Offer
+    const normalized = raw.map((item: any) => ({
+      ...item,
+      CampaignID:
+        item.CampaignID ??
+        item.CampaignId ??
+        item.campaignId ??
+        item.campaignID ??
+        null,
+      Offer: item.Offer ?? item.Campaign ?? item.Name ?? "", // por si el pending no trae Offer
+      Countrys: item.Countrys ?? item.Countries ?? item.Geo?.Countries?.map((x: any) => x.country) ?? [],
+    }));
+
+    setRequestedCampaigns(normalized.filter((x: any) => x.CampaignID !== null));
+  } catch (e) {
+    console.error("Error fetching request_pending:", e);
+    setRequestedCampaigns([]);
+  }
+};
+
 
   const handleAddToRequest = async (id: number) => {
     let apiKey = localStorage.getItem('user');
@@ -138,11 +163,44 @@ const DashboardRequestOff: React.FC = () => {
     }
   };
 
-  const handleViewDetails = async (id: string) => {
-    const res = await axios.get(`https://api.laikad.com/api/campaigns/details_campaign_request_offer_client?CampaignID=${id}`);
-    setModalData(res.data.result[0]);
+  const handleViewDetails = async (campaign: any) => {
+  // Resolver posibles variantes del ID
+  const id =
+    campaign?.CampaignID ??
+    campaign?.CampaignId ??
+    campaign?.campaignId ??
+    campaign?.campaignID;
+
+  if (!id) {
+    setErrorDetails("No se encontró el ID de campaña en este registro.");
     setShowModal(true);
-  };
+    return;
+  }
+
+  setShowModal(true);
+  setLoadingDetails(true);
+  setErrorDetails(null);
+
+  try {
+    // Si este endpoint requiere ApiKey, podés adjuntarla
+    // const apiKey = JSON.parse(localStorage.getItem('user') || '{}')?.Supplier?.ApiKey;
+    // const url = `https://api.laikad.com/api/campaigns/details_campaign_request_offer_client?CampaignID=${id}&ApiKey=${apiKey}`;
+
+    const url = `https://api.laikad.com/api/campaigns/details_campaign_request_offer_client?CampaignID=${id}`;
+    const res = await axios.get(url);
+
+    const result = Array.isArray(res.data?.result) ? res.data.result[0] : null;
+    if (!result) {
+      setErrorDetails("No se encontró detalle para esta campaña.");
+    }
+    setModalData(result);
+  } catch (err) {
+    console.error("Error loading details:", err);
+    setErrorDetails("Ocurrió un error al cargar el detalle.");
+  } finally {
+    setLoadingDetails(false);
+  }
+};
 
   useEffect(() => {
     fetchCategories();
@@ -207,8 +265,8 @@ const DashboardRequestOff: React.FC = () => {
                 </td>
                 <td className="px-4 py-2">{Array.isArray(c.Countrys) ? c.Countrys.join(", ") : c.Countrys}</td>
                 <td className="px-4 py-2 whitespace-nowrap">
-                  <button onClick={() => handleViewDetails(c.CampaignID)} className="btn btn-warning text-xs px-3 py-1">
-                    View more
+                  <button onClick={() => handleViewDetails(c)} className="btn btn-warning text-xs px-3 py-1">
+                       View more
                   </button>
                 </td>
                 <td className="px-4 py-2 whitespace-nowrap">
@@ -225,24 +283,45 @@ const DashboardRequestOff: React.FC = () => {
           </tbody>
         </table>
       </div>
-      {showModal && modalData && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-          <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-md w-full max-w-xl">
-            <h2 className="text-lg font-bold mb-2">{modalData.Campaign}</h2>
-            <p><strong>Advertiser:</strong> {modalData.Advertiser}</p>
-            <p><strong>Revenue:</strong> {modalData.Revenue}</p>
-            <p><strong>Country:</strong> {modalData.Geo?.Countries?.map((c: any) => c.country).join(", ")}</p>
-            <p><strong>Campaign Type:</strong> {modalData.CampaignType}</p>
-            <p><strong>Device:</strong> {modalData.Device}</p>
-            <p><strong>Daily Event/Install:</strong> {modalData.EventsGoal}</p>
-            <p><strong>Daily Click:</strong> {modalData.DailyQuantityClick}</p>
-            <p><strong>URL Preview:</strong> <a href={modalData.MarcketURL} className="text-blue-500 underline" target="_blank" rel="noopener noreferrer">{modalData.MarcketURL}</a></p>
-            <div className="mt-4 text-right">
-              <button onClick={() => setShowModal(false)} className="btn btn-danger">Close</button>
-            </div>
-          </div>
-        </div>
+      {showModal && (
+  <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+    <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-md w-full max-w-xl">
+      {loadingDetails && (<p className="mb-2">Cargando detalle...</p>)}
+
+      {errorDetails && (
+        <>
+          <h2 className="text-lg font-bold mb-2">Detalle de campaña</h2>
+          <p className="text-red-500 mb-4">{errorDetails}</p>
+        </>
       )}
+
+      {!loadingDetails && !errorDetails && modalData && (
+        <>
+          <h2 className="text-lg font-bold mb-2">{modalData.Campaign}</h2>
+          <p><strong>Advertiser:</strong> {modalData.Advertiser}</p>
+          <p><strong>Revenue:</strong> {modalData.Revenue}</p>
+          <p><strong>Country:</strong> {modalData.Geo?.Countries?.map((c: any) => c.country).join(", ")}</p>
+          <p><strong>Campaign Type:</strong> {modalData.CampaignType}</p>
+          <p><strong>Device:</strong> {modalData.Device}</p>
+          <p><strong>Daily Event/Install:</strong> {modalData.EventsGoal}</p>
+          <p><strong>Daily Click:</strong> {modalData.DailyQuantityClick}</p>
+          <p>
+            <strong>URL Preview:</strong>{" "}
+            <a href={modalData.MarcketURL} className="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
+              {modalData.MarcketURL}
+            </a>
+          </p>
+        </>
+      )}
+
+      <div className="mt-4 text-right">
+        <button onClick={() => { setShowModal(false); setModalData(null); setErrorDetails(null); }} className="btn btn-danger">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
