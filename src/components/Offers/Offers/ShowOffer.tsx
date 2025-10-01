@@ -7,6 +7,7 @@ import { getCampaignsByAdvertiserID, getAllCampaigns } from "@/app/api/campaign/
 import { Box, Button, Select, MenuItem, Input, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, useTheme, TextareaAutosize, Tooltip, SelectChangeEvent } from "@mui/material";
 import { sendMailSupplier } from "@/app/api/filtersService/filtersService";
 import ClickAwayListener from '@mui/material/ClickAwayListener';
+import SearchableSelect from "@/components/SelectOption/SearchableSelect";
 
 interface Advertiser {
   AdvertiserID: number;
@@ -1435,28 +1436,18 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                   <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: 1 }}>
                     Supplier
                   </label>
-                  <Select
-                    fullWidth
+                  <SearchableSelect
+                    options={suppliers.map((sup) => ({
+                      value: sup.SupplierID,
+                      label: sup.Supplier
+                    }))}
                     value={selectedSupplier}
-                    onChange={(e) => setSelectedSupplier(e.target.value)}
-                    sx={{
-                      height: 48,
-                      bgcolor: "background.paper",
-                      "& .MuiSelect-select": { color: theme.palette.text.primary },
-                      "& .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.divider },
-                      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
-                    }}
-                    displayEmpty
-                  >
-                    <MenuItem value="" disabled>
-                      Select...
-                    </MenuItem>
-                    {suppliers.map((sup) => (
-                      <MenuItem key={sup.SupplierID} value={sup.SupplierID}>
-                        {sup.Supplier}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                    onChange={(value) => setSelectedSupplier(value.toString())}
+                    placeholder="Search suppliers..."
+                    fullWidth
+                    clearable
+                    onClear={() => setSelectedSupplier("")}
+                  />
                 </Box>
                 <Box sx={{ position: "relative" }}>
                   <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: 1 }}>
@@ -1708,28 +1699,18 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                   <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: 1 }}>
                     Advertiser
                   </label>
-                  <Select
-                    fullWidth
+                  <SearchableSelect
+                    options={advertisers.map((adv) => ({
+                      value: adv.AdvertiserID,
+                      label: adv.Advertiser
+                    }))}
                     value={selectedAdvertiser}
-                    onChange={(e) => setSelectedAdvertiser(e.target.value)}
-                    sx={{
-                      height: 48,
-                      bgcolor: "background.paper",
-                      "& .MuiSelect-select": { color: theme.palette.text.primary },
-                      "& .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.divider },
-                      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
-                    }}
-                    displayEmpty
-                  >
-                    <MenuItem value="" disabled>
-                      Select...
-                    </MenuItem>
-                    {advertisers.map((adv) => (
-                      <MenuItem key={adv.AdvertiserID} value={adv.AdvertiserID}>
-                        {adv.Advertiser}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                    onChange={(value) => setSelectedAdvertiser(value.toString())}
+                    placeholder="Search advertisers..."
+                    fullWidth
+                    clearable
+                    onClear={() => setSelectedAdvertiser("")}
+                  />
                 </Box>
                 <Box>
                   <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: 1 }}>
@@ -1786,28 +1767,18 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                   <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: 1 }}>
                     Suppliers
                   </label>
-                  <Select
-                    fullWidth
+                  <SearchableSelect
+                    options={suppliers.map((sup) => ({
+                      value: sup.SupplierID,
+                      label: sup.Supplier
+                    }))}
                     value={selectedAdvertiserSupplier}
-                    onChange={(e) => setSelectedAdvertiserSupplier(e.target.value)}
-                    sx={{
-                      height: 48,
-                      bgcolor: "background.paper",
-                      "& .MuiSelect-select": { color: theme.palette.text.primary },
-                      "& .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.divider },
-                      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
-                    }}
-                    displayEmpty
-                  >
-                    <MenuItem value="" disabled>
-                      Select...
-                    </MenuItem>
-                    {suppliers.map((sup) => (
-                      <MenuItem key={sup.SupplierID} value={sup.SupplierID}>
-                        {sup.Supplier}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                    onChange={(value) => setSelectedAdvertiserSupplier(value.toString())}
+                    placeholder="Search suppliers..."
+                    fullWidth
+                    clearable
+                    onClear={() => setSelectedAdvertiserSupplier("")}
+                  />
                 </Box>
               </Box>
             )}

@@ -7,6 +7,7 @@ import { getOffers } from "@/app/api/offer/service";
 import { getCampaignsByAdvertiserID } from "@/app/api/campaign/service";
 import { Box, Button, Select, MenuItem, Input, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, useTheme, Checkbox, Typography } from "@mui/material";
 import { getReportsCampaignTotal } from "../../../app/api/report/service";
+import SearchableSelect from "@/components/SelectOption/SearchableSelect";
 
 interface ReportItem {
   creationDate: string;
@@ -552,26 +553,18 @@ const ShowReport: React.FC = () => {
               </Box>
             ) : (
               <>
-                <Select
-                  fullWidth
+                <SearchableSelect
+                  options={advertisers.map((adv) => ({
+                    value: adv.AdvertiserID,
+                    label: adv.Advertiser
+                  }))}
                   value={advertiser}
-                  onChange={(e) => setAdvertiser(e.target.value)}
-                  sx={{
-                    height: 48,
-                    bgcolor: 'background.paper',
-                    '& .MuiSelect-select': { color: theme.palette.text.primary },
-                    '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider },
-                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.primary.main },
-                  }}
-                  displayEmpty
-                >
-                  <MenuItem value="" disabled>Select...</MenuItem>
-                  {advertisers.map((adv) => (
-                    <MenuItem key={adv.AdvertiserID} value={adv.AdvertiserID}>
-                      {adv.Advertiser}
-                    </MenuItem>
-                  ))}
-                </Select>
+                  onChange={(value) => setAdvertiser(value.toString())}
+                  placeholder="Search advertisers..."
+                  fullWidth
+                  clearable
+                  onClear={() => setAdvertiser("")}
+                />
                 {advertiser && (
                   <Button
                     onClick={() => handleClear("advertiser")}
@@ -607,28 +600,19 @@ const ShowReport: React.FC = () => {
               </Box>
             ) : (
               <>
-                <Select
-                  fullWidth
+                <SearchableSelect
+                  options={campaignsList.map((camp) => ({
+                    value: camp.CampaignID,
+                    label: camp.Campaign
+                  }))}
                   value={campaign}
-                  onChange={(e) => setCampaign(e.target.value)}
+                  onChange={(value) => setCampaign(value.toString())}
+                  placeholder="Search campaigns..."
+                  fullWidth
                   disabled={isCampaignDisabled}
-                  sx={{
-                    height: 48,
-                    bgcolor: 'background.paper',
-                    '& .MuiSelect-select': { color: theme.palette.text.primary },
-                    '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider },
-                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.primary.main },
-                    opacity: isCampaignDisabled ? 0.5 : 1,
-                  }}
-                  displayEmpty
-                >
-                  <MenuItem value="" disabled>Select or search a Campaign in the list...</MenuItem>
-                  {campaignsList.map((camp) => (
-                    <MenuItem key={camp.CampaignID} value={camp.CampaignID}>
-                      {camp.Campaign}
-                    </MenuItem>
-                  ))}
-                </Select>
+                  clearable
+                  onClear={() => setCampaign("")}
+                />
                 {campaign && !isCampaignDisabled && (
                   <Button
                     onClick={() => handleClear("campaign")}
@@ -664,26 +648,18 @@ const ShowReport: React.FC = () => {
               </Box>
             ) : (
               <>
-                <Select
-                  fullWidth
+                <SearchableSelect
+                  options={suppliers.map((sup) => ({
+                    value: sup.SupplierID,
+                    label: sup.Supplier
+                  }))}
                   value={supplier}
-                  onChange={(e) => setSupplier(e.target.value)}
-                  sx={{
-                    height: 48,
-                    bgcolor: 'background.paper',
-                    '& .MuiSelect-select': { color: theme.palette.text.primary },
-                    '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider },
-                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.primary.main },
-                  }}
-                  displayEmpty
-                >
-                  <MenuItem value="" disabled>Select...</MenuItem>
-                  {suppliers.map((sup) => (
-                    <MenuItem key={sup.SupplierID} value={sup.SupplierID}>
-                      {sup.Supplier}
-                    </MenuItem>
-                  ))}
-                </Select>
+                  onChange={(value) => setSupplier(value.toString())}
+                  placeholder="Search suppliers..."
+                  fullWidth
+                  clearable
+                  onClear={() => setSupplier("")}
+                />
                 {supplier && (
                   <Button
                     onClick={() => handleClear("supplier")}
@@ -719,28 +695,19 @@ const ShowReport: React.FC = () => {
               </Box>
             ) : (
               <>
-                <Select
-                  fullWidth
+                <SearchableSelect
+                  options={offersList.map((off) => ({
+                    value: off.OfferID,
+                    label: off.Offer
+                  }))}
                   value={offer}
-                  onChange={(e) => setOffer(e.target.value)}
+                  onChange={(value) => setOffer(value.toString())}
+                  placeholder="Search offers..."
+                  fullWidth
                   disabled={isOfferDisabled}
-                  sx={{
-                    height: 48,
-                    bgcolor: 'background.paper',
-                    '& .MuiSelect-select': { color: theme.palette.text.primary },
-                    '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider },
-                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.primary.main },
-                    opacity: isOfferDisabled ? 0.5 : 1,
-                  }}
-                  displayEmpty
-                >
-                  <MenuItem value="" disabled>Select or search an Offer in the list...</MenuItem>
-                  {offersList.map((off) => (
-                    <MenuItem key={off.OfferID} value={off.OfferID}>
-                      {off.Offer}
-                    </MenuItem>
-                  ))}
-                </Select>
+                  clearable
+                  onClear={() => setOffer("")}
+                />
                 {offer && !isOfferDisabled && (
                   <Button
                     onClick={() => handleClear("offer")}
@@ -766,26 +733,18 @@ const ShowReport: React.FC = () => {
             Account Managers
           </label>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Select
-              fullWidth
+            <SearchableSelect
+              options={accountManagers.map((mgr) => ({
+                value: mgr.id,
+                label: mgr.name
+              }))}
               value={accountManager}
-              onChange={(e) => setAccountManager(e.target.value)}
-              sx={{
-                height: 48,
-                bgcolor: 'background.paper',
-                '& .MuiSelect-select': { color: theme.palette.text.primary },
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.primary.main },
-              }}
-              displayEmpty
-            >
-              <MenuItem value="" disabled>Select...</MenuItem>
-              {accountManagers.map((mgr) => (
-                <MenuItem key={mgr.id} value={mgr.id}>
-                  {mgr.name}
-                </MenuItem>
-              ))}
-            </Select>
+              onChange={(value) => setAccountManager(value.toString())}
+              placeholder="Search account managers..."
+              fullWidth
+              clearable
+              onClear={() => setAccountManager("")}
+            />
             {accountManager && (
               <Button
                 onClick={() => handleClear("accountManager")}

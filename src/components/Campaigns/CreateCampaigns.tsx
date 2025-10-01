@@ -12,6 +12,7 @@ import Select from 'react-select';
 import Image from 'next/image';
 import { styled } from '@mui/material/styles';
 import { Box, Button, TextField, Typography, FormControl, InputLabel, MenuItem, Select as MuiSelect, Checkbox, FormControlLabel } from '@mui/material';
+import SearchableSelect from "@/components/SelectOption/SearchableSelect";
 
 interface Info {
   CampaignID: number;
@@ -773,39 +774,35 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
         <StyledForm>
           <Button onClick={props.onClose} sx={{ display: 'none' }}>Close</Button>
 
-          <FormControl fullWidth variant="outlined" sx={{ mb: 3 }}>
-            <InputLabel>Advertisers</InputLabel>
-            <MuiSelect
-              value={currentInfoHead.AdvertiserID.toString()}
-              onChange={handleChangeHeadsList}
-              label="Advertisers"
-              disabled={isEditing}
-            >
-              <MenuItem value="0">Select...</MenuItem>
-              {advertisers.map((advertiser) => (
-                <MenuItem key={advertiser.AdvertiserID} value={advertiser.AdvertiserID.toString()}>
-                  {advertiser.Advertiser}
-                </MenuItem>
-              ))}
-            </MuiSelect>
-          </FormControl>
+          <SearchableSelect
+            options={advertisers.map((advertiser) => ({
+              value: advertiser.AdvertiserID.toString(),
+              label: advertiser.Advertiser
+            }))}
+            value={currentInfoHead.AdvertiserID.toString()}
+            onChange={(value) => handleChangeHeadsList({ target: { value } } as any)}
+            placeholder="Search advertisers..."
+            label="Advertisers"
+            fullWidth
+            disabled={isEditing}
+            clearable
+            onClear={() => handleChangeHeadsList({ target: { value: "0" } } as any)}
+          />
 
-          <FormControl fullWidth variant="outlined" sx={{ mb: 3 }}>
-            <InputLabel>Heads</InputLabel>
-            <MuiSelect
-              value={currentInfoHead.CampaignHeadID.toString()}
-              onChange={handleHeadChange}
-              label="Heads"
-              disabled={isEditing}
-            >
-              <MenuItem value="0">Select...</MenuItem>
-              {heads.map((item) => (
-                <MenuItem key={item.CampaignHeadID} value={item.CampaignHeadID.toString()}>
-                  {item.CampaignHead}
-                </MenuItem>
-              ))}
-            </MuiSelect>
-          </FormControl>
+          <SearchableSelect
+            options={heads.map((item) => ({
+              value: item.CampaignHeadID.toString(),
+              label: item.CampaignHead
+            }))}
+            value={currentInfoHead.CampaignHeadID.toString()}
+            onChange={(value) => handleHeadChange({ target: { value } } as any)}
+            placeholder="Search heads..."
+            label="Heads"
+            fullWidth
+            disabled={isEditing}
+            clearable
+            onClear={() => handleHeadChange({ target: { value: "0" } } as any)}
+          />
 
           {!currentInfoHead.CampaignHeadID && (
             <TextField
@@ -820,46 +817,41 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
             />
           )}
 
-          <FormControl fullWidth variant="outlined" sx={{ mb: 3 }}>
-            <InputLabel>Head Type</InputLabel>
-            <MuiSelect
-              name="CampaignTypeID"
-              value={currentInfoHead.CampaignTypeID}
-              onChange={handleInputChange}
-              label="Head Type"
-              disabled={isEditing}
-            >
-              <MenuItem value="">Select...</MenuItem>
-              {listCampaignType.map((item) => (
-                <MenuItem key={item.CampaignTypeID} value={item.CampaignTypeID}>
-                  {item.CampaignType}
-                </MenuItem>
-              ))}
-            </MuiSelect>
-          </FormControl>
+          <SearchableSelect
+            options={listCampaignType.map((item) => ({
+              value: item.CampaignTypeID,
+              label: item.CampaignType
+            }))}
+            value={currentInfoHead.CampaignTypeID}
+            onChange={(value) => handleInputChange({ target: { name: "CampaignTypeID", value } } as any)}
+            placeholder="Search campaign types..."
+            label="Head Type"
+            fullWidth
+            disabled={isEditing}
+            clearable
+            onClear={() => handleInputChange({ target: { name: "CampaignTypeID", value: "" } } as any)}
+          />
 
-          <FormControl fullWidth variant="outlined" sx={{ mb: 3 }}>
-            <InputLabel>Categories</InputLabel>
-            <MuiSelect
-              name="CampaignCategory"
-              value={currentInfoHead.CampaignCategoryID || currentInfoHead.CampaignCategory}
-              onChange={handleInputChange}
-              label="Categories"
-              disabled={isEditing}
-            >
-              <MenuItem value={0}>Select...</MenuItem>
-              {categories.map((category) => (
-                <MenuItem key={category.TypeID} value={category.TypeID}>
-                  {category.Description}
-                </MenuItem>
-              ))}
-              {currentInfoHead.CampaignCategory && (
-                <MenuItem value={currentInfoHead.CampaignCategoryID}>
-                  {currentInfoHead.CampaignCategory}
-                </MenuItem>
-              )}
-            </MuiSelect>
-          </FormControl>
+          <SearchableSelect
+            options={[
+              ...categories.map((category) => ({
+                value: category.TypeID,
+                label: category.Description
+              })),
+              ...(currentInfoHead.CampaignCategory ? [{
+                value: currentInfoHead.CampaignCategoryID,
+                label: currentInfoHead.CampaignCategory
+              }] : [])
+            ]}
+            value={currentInfoHead.CampaignCategoryID || currentInfoHead.CampaignCategory}
+            onChange={(value) => handleInputChange({ target: { name: "CampaignCategory", value } } as any)}
+            placeholder="Search categories..."
+            label="Categories"
+            fullWidth
+            disabled={isEditing}
+            clearable
+            onClear={() => handleInputChange({ target: { name: "CampaignCategory", value: 0 } } as any)}
+          />
 
           <TextField
             fullWidth
@@ -1116,23 +1108,19 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                   </Box>
                 )}
 
-              <FormControl fullWidth variant="outlined" sx={{ mb: 3 }}>
-                <InputLabel>Device</InputLabel>
-                <MuiSelect
-                  name="Device"
-                  value={currentInfo.Device}
-                  onChange={handleCampaignInputChange}
-                  label="Device"
-                >
-                  <MenuItem value="">Select...</MenuItem>
-                  {Array.isArray(listDevice) &&
-                    listDevice.map((item) => (
-                      <MenuItem key={item.DeviceID} value={item.Device}>
-                        {item.Device}
-                      </MenuItem>
-                    ))}
-                </MuiSelect>
-              </FormControl>
+              <SearchableSelect
+                options={Array.isArray(listDevice) ? listDevice.map((item) => ({
+                  value: item.Device,
+                  label: item.Device
+                })) : []}
+                value={currentInfo.Device}
+                onChange={(value) => handleCampaignInputChange({ target: { name: "Device", value } } as any)}
+                placeholder="Search devices..."
+                label="Device"
+                fullWidth
+                clearable
+                onClear={() => handleCampaignInputChange({ target: { name: "Device", value: "" } } as any)}
+              />
 
               <TextField
                 fullWidth

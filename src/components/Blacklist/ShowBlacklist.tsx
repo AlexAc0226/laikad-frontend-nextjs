@@ -7,6 +7,7 @@ import { getOffers } from "@/app/api/offer/service";
 import * as XLSX from "xlsx";
 import { Box, Button, Select, MenuItem, Input, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, useTheme, Checkbox, TextareaAutosize } from "@mui/material";
 import ClickAwayListener from '@mui/material/ClickAwayListener';
+import SearchableSelect from "@/components/SelectOption/SearchableSelect";
 
 
 interface Advertiser {
@@ -856,28 +857,19 @@ const ShowBlacklist: React.FC = () => {
             Campaigns
           </label>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Select
-              fullWidth
+            <SearchableSelect
+              options={campaignsList.map((camp) => ({
+                value: camp.CampaignID,
+                label: camp.Campaign
+              }))}
               value={campaign}
-              onChange={(e) => handleCampaignChange(e.target.value)}
+              onChange={(value) => handleCampaignChange(value.toString())}
+              placeholder="Search campaigns..."
+              fullWidth
               disabled={isCampaignsDisabled || isAdvertiserDisabled}
-              sx={{
-                height: 48,
-                bgcolor: 'background.paper',
-                '& .MuiSelect-select': { color: theme.palette.text.primary },
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.primary.main },
-                opacity: isCampaignsDisabled || isAdvertiserDisabled ? 0.5 : 1,
-              }}
-              displayEmpty
-            >
-              <MenuItem value="" disabled>Select...</MenuItem>
-              {campaignsList.map((camp) => (
-                <MenuItem key={camp.CampaignID} value={camp.CampaignID}>
-                  {camp.Campaign}
-                </MenuItem>
-              ))}
-            </Select>
+              clearable
+              onClear={() => handleCampaignChange("")}
+            />
             {campaign && !isAdvertiserDisabled && !isCampaignsDisabled && (
               <Button
                 onClick={() => handleClear("campaign")}
@@ -901,28 +893,19 @@ const ShowBlacklist: React.FC = () => {
             Offers
           </label>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Select
-              fullWidth
+            <SearchableSelect
+              options={offersList.map((off) => ({
+                value: off.OfferID,
+                label: off.Offer
+              }))}
               value={offer}
-              onChange={(e) => setOffer(e.target.value)}
+              onChange={(value) => setOffer(value.toString())}
+              placeholder="Search offers..."
+              fullWidth
               disabled={isOffersDisabled || isSupplierDisabled}
-              sx={{
-                height: 48,
-                bgcolor: 'background.paper',
-                '& .MuiSelect-select': { color: theme.palette.text.primary },
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.primary.main },
-                opacity: isOffersDisabled || isSupplierDisabled ? 0.5 : 1,
-              }}
-              displayEmpty
-            >
-              <MenuItem value="" disabled>Select...</MenuItem>
-              {offersList.map((off) => (
-                <MenuItem key={off.OfferID} value={off.OfferID}>
-                  {off.Offer}
-                </MenuItem>
-              ))}
-            </Select>
+              clearable
+              onClear={() => setOffer("")}
+            />
             {offer && !isSupplierDisabled && !isOffersDisabled && (
               <Button
                 onClick={() => handleClear("offer")}

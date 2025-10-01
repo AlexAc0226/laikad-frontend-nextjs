@@ -19,6 +19,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { Tooltip } from "react-tooltip";
 import { Box, Button, useTheme, TextField, Select,Input, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox } from "@mui/material";
+import SearchableSelect from "@/components/SelectOption/SearchableSelect";
 
 interface Manager {
   AccountManagerID: number;
@@ -670,31 +671,29 @@ const selectManager = (manager: Manager) => {
                 </div>
               ))}
               <div className="col-span-1 md:col-span-2">
-                <FormControl fullWidth variant="outlined" sx={{ bgcolor: 'white' }}>
-                  <InputLabel>Account manager</InputLabel>
-                  <Select
-                    value={newAdvertiser.AccountManagerID}
-                    onChange={(e) =>
-                      setNewAdvertiser({
-                        ...newAdvertiser,
-                        AccountManagerID: e.target.value,
-                      })
-                    }
-                    label="Account manager"
-                  >
-                    <MenuItem value="">
-                      <em>Select manager</em>
-                    </MenuItem>
-                    {managers.map((manager) => (
-                      <MenuItem
-                        key={manager.AccountManagerID}
-                        value={manager.AccountManagerID}
-                      >
-                        {manager.AccountManager}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <SearchableSelect
+                  options={managers.map((manager) => ({
+                    value: manager.AccountManagerID,
+                    label: manager.AccountManager
+                  }))}
+                  value={newAdvertiser.AccountManagerID}
+                  onChange={(value) =>
+                    setNewAdvertiser({
+                      ...newAdvertiser,
+                      AccountManagerID: value.toString(),
+                    })
+                  }
+                  placeholder="Search account managers..."
+                  label="Account manager"
+                  fullWidth
+                  clearable
+                  onClear={() =>
+                    setNewAdvertiser({
+                      ...newAdvertiser,
+                      AccountManagerID: "",
+                    })
+                  }
+                />
               </div>
             </div>
             <div className="mt-4 flex justify-end space-x-4">
@@ -1243,34 +1242,36 @@ const selectManager = (manager: Manager) => {
                 sx={{ bgcolor: 'white' }}
               />
               <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
-                <FormControl fullWidth variant="outlined" sx={{ bgcolor: 'white' }}>
-                  <InputLabel>Contact type</InputLabel>
-                  <Select
-                    value={currentContact.ContactTypeID}
-                    onChange={(e) => {
-                      const selectedType = arrayContactTypes.find(
-                        (type) => type.TypeID === e.target.value,
-                      );
-                      setCurrentContact({
-                        ...currentContact,
-                        ContactTypeID: e.target.value,
-                        ContactType: selectedType
-                          ? selectedType.Description
-                          : "",
-                      });
-                    }}
-                    label="Contact type"
-                  >
-                    <MenuItem value="">
-                      <em>Select contact type</em>
-                    </MenuItem>
-                    {arrayContactTypes.map((type) => (
-                      <MenuItem key={type.TypeID} value={type.TypeID}>
-                        {type.Description}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <SearchableSelect
+                  options={arrayContactTypes.map((type) => ({
+                    value: type.TypeID,
+                    label: type.Description
+                  }))}
+                  value={currentContact.ContactTypeID}
+                  onChange={(value) => {
+                    const selectedType = arrayContactTypes.find(
+                      (type) => type.TypeID === value,
+                    );
+                    setCurrentContact({
+                      ...currentContact,
+                      ContactTypeID: value.toString(),
+                      ContactType: selectedType
+                        ? selectedType.Description
+                        : "",
+                    });
+                  }}
+                  placeholder="Search contact types..."
+                  label="Contact type"
+                  fullWidth
+                  clearable
+                  onClear={() =>
+                    setCurrentContact({
+                      ...currentContact,
+                      ContactTypeID: "",
+                      ContactType: "",
+                    })
+                  }
+                />
                 <TextField
                   fullWidth
                   variant="outlined"
