@@ -31,20 +31,22 @@ const SidebarItem = ({ item, pageName, setPageName }: any) => {
           className={`${isItemActive ? "bg-primary/[.07] text-primary dark:bg-white/10 dark:text-white" : "text-dark-4 hover:bg-gray-2 hover:text-dark dark:text-gray-5 dark:hover:bg-white/10 dark:hover:text-white"} group relative flex items-center gap-3 rounded-[7px] px-3.5 py-3 font-medium duration-300 ease-in-out`}
         >
           {item.icon}
-          {item.label}
+          <span className="lg:hidden lg:group-hover:block lg:opacity-0 lg:group-hover:opacity-100 lg:max-w-0 lg:group-hover:max-w-full lg:transition-all lg:duration-300 lg:overflow-hidden">
+            {item.label}
+          </span>
           {item.message && (
-            <span className="absolute right-11.5 top-1/2 -translate-y-1/2 rounded-full bg-red-light-6 px-1.5 py-px text-[10px] font-medium leading-[17px] text-red">
+            <span className="absolute right-11.5 top-1/2 -translate-y-1/2 rounded-full bg-red-light-6 px-1.5 py-px text-[10px] font-medium leading-[17px] text-red lg:hidden lg:group-hover:block">
               {item.message}
             </span>
           )}
           {item.pro && (
-            <span className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded-md bg-primary px-1.5 py-px text-[10px] font-medium leading-[17px] text-white">
+            <span className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded-md bg-primary px-1.5 py-px text-[10px] font-medium leading-[17px] text-white lg:hidden lg:group-hover:block">
               Pro
             </span>
           )}
           {item.children && (
             <svg
-              className={`absolute right-3.5 top-1/2 -translate-y-1/2 fill-current ${
+              className={`absolute right-3.5 top-1/2 -translate-y-1/2 fill-current lg:hidden lg:group-hover:block ${
                 pageName !== item.label.toLowerCase() && "rotate-180"
               }`}
               width="22"
@@ -65,7 +67,7 @@ const SidebarItem = ({ item, pageName, setPageName }: any) => {
 
         {item.children && (
           <div
-            className={`translate transform overflow-hidden ${
+            className={`translate transform overflow-hidden lg:hidden lg:group-hover:block ${
               pageName !== item.label.toLowerCase() && "hidden"
             }`}
           >
