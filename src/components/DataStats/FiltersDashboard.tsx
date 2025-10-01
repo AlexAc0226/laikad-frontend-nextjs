@@ -397,7 +397,7 @@ const FiltersDashboard: React.FC = () => {
     onClick={() => setIsModalOpen(false)}
   >
     <div
-      className="bg-white dark:bg-gray-800 dark:text-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-[90vw] sm:max-w-6xl max-h-[90vh] sm:max-h-[80vh] overflow-hidden flex flex-col"
+      className="bg-white dark:bg-gray-800 dark:text-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-[95vw] sm:max-w-7xl max-h-[95vh] sm:max-h-[85vh] overflow-hidden flex flex-col"
       onClick={(e) => e.stopPropagation()}
     >
       <h3 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">

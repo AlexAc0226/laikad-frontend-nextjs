@@ -194,13 +194,17 @@ const StyledContainer = styled(Box)(({ theme }) => ({
 
 const StyledCard = styled(Box)(({ theme }) => ({
   width: '100%',
-  maxWidth: '900px',
-  maxHeight: '90vh',
+  maxWidth: '1200px',
+  maxHeight: '95vh',
   overflowY: 'auto',
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
   boxShadow: theme.shadows[5],
-  padding: theme.spacing(3),
+  padding: theme.spacing(4),
+  [theme.breakpoints.down('lg')]: {
+    maxWidth: '95vw',
+    padding: theme.spacing(3),
+  },
   [theme.breakpoints.down('md')]: {
     maxWidth: '100%',
     padding: theme.spacing(2),

@@ -840,7 +840,7 @@ const ShowPublisher: React.FC = () => {
 
       {addModalOpen && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1300, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, maxWidth: 'lg', maxHeight: '90vh', overflowY: 'auto', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: 'xl', width: '90vw', maxHeight: '90vh', overflowY: 'auto', boxShadow: 3, color: theme.palette.text.primary }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 3, textAlign: 'center', color: theme.palette.text.primary }}>
               Add new supplier
             </Typography>
@@ -937,7 +937,7 @@ const ShowPublisher: React.FC = () => {
 
       {viewModalOpen && viewSupplier && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1300, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, maxWidth: 'md', maxHeight: '90vh', overflowY: 'auto', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: 'lg', width: '90vw', maxHeight: '90vh', overflowY: 'auto', boxShadow: 3, color: theme.palette.text.primary }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', borderBottom: `1px solid ${theme.palette.divider}`, pb: 2, textAlign: 'center', color: theme.palette.text.primary }}>
               Supplier Details: {viewSupplier.Supplier || ""}
             </Typography>
@@ -989,7 +989,7 @@ const ShowPublisher: React.FC = () => {
 
       {contactsModalOpen && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1300, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, maxWidth: 'md', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: 'lg', width: '90vw', maxHeight: '90vh', overflowY: 'auto', boxShadow: 3, color: theme.palette.text.primary }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 3, color: theme.palette.text.primary }}>
               Contacts for Supplier
             </Typography>
@@ -1207,7 +1207,7 @@ const ShowPublisher: React.FC = () => {
 
       {isContactModalOpen && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1300, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, maxWidth: { xs: '90%', sm: 'md' }, maxHeight: '90vh', overflowY: 'auto', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: { xs: '95%', sm: 'lg' }, width: '90vw', maxHeight: '90vh', overflowY: 'auto', boxShadow: 3, color: theme.palette.text.primary }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 3, color: theme.palette.text.primary }}>
               {isEditingContact ? "Edit contact" : "Create new contact"}
             </Typography>
@@ -1353,7 +1353,7 @@ const ShowPublisher: React.FC = () => {
 
       {isPasswordModalOpen && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1300, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, maxWidth: 'md', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: 'lg', width: '90vw', boxShadow: 3, color: theme.palette.text.primary }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: theme.palette.text.primary }}>
               Current password:
             </Typography>
@@ -1406,7 +1406,7 @@ const ShowPublisher: React.FC = () => {
 
       {isChangePasswordModalOpen && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1300, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 4, borderRadius: 2, maxWidth: 'md', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: 'lg', width: '90vw', boxShadow: 3, color: theme.palette.text.primary }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: theme.palette.text.primary }}>
               Change password
             </Typography>

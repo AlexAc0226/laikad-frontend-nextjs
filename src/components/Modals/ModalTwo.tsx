@@ -18,7 +18,7 @@ const ModalTwo: React.FC = () => {
           className={`fixed left-0 top-0 z-999999 flex h-full min-h-screen w-full items-center justify-center bg-[#111928]/90 px-4 py-5`}
         >
           <ClickOutside onClick={() => setModalOpen(false)}>
-            <div className="w-full max-w-[550px] rounded-[15px] bg-white px-8 py-12 text-center shadow-3 dark:bg-gray-dark dark:shadow-card md:px-15 md:py-15">
+            <div className="w-full max-w-[700px] rounded-[15px] bg-white px-10 py-14 text-center shadow-3 dark:bg-gray-dark dark:shadow-card md:px-16 md:py-16">
               <span className="mx-auto flex h-15 w-full max-w-15 items-center justify-center rounded-full bg-[#DC2626] bg-opacity-10 text-[#DC2626]">
                 <svg
                   className="fill-current"

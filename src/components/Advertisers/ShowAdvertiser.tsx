@@ -639,7 +639,7 @@ const selectManager = (manager: Manager) => {
 
       {isAddModalOpen && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, maxWidth: '3xl', maxHeight: '90vh', overflowY: 'auto', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: '4xl', width: '90vw', maxHeight: '90vh', overflowY: 'auto', boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center" style={{ color: theme.palette.text.primary }}>
               Add new advertiser
             </h2>
@@ -807,7 +807,7 @@ const selectManager = (manager: Manager) => {
 
       {isContactsModalOpen && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, maxWidth: 'md', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: 'lg', width: '90vw', maxHeight: '90vh', overflowY: 'auto', boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="text-xl font-semibold text-gray-800 mb-4" style={{ color: theme.palette.text.primary }}>
               Contacts for advertiser
             </h2>
@@ -931,7 +931,7 @@ const selectManager = (manager: Manager) => {
 
       {isDeleteModalOpen && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, maxWidth: 'md', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: 'lg', width: '90vw', boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="mb-2 text-lg font-semibold" style={{ color: theme.palette.text.primary }}>Do you want to delete this {itemToDelete?.ContactID ? "contact" : "advertiser"}?</h2>
             <div className="flex justify-end space-x-4">
               <Button
@@ -957,7 +957,7 @@ const selectManager = (manager: Manager) => {
 
       {isPasswordModalOpen && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, maxWidth: 'md', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: 'lg', width: '90vw', boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="mb-2 text-lg font-bold" style={{ color: theme.palette.text.primary }}>Current password:</h2>
             <div className="relative">
               <TextField
@@ -993,7 +993,7 @@ const selectManager = (manager: Manager) => {
 
       {isChangePasswordModalOpen && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, maxWidth: 'md', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: 'lg', width: '90vw', boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="mb-2 text-lg font-bold" style={{ color: theme.palette.text.primary }}>Change password</h2>
             {passwordUpdateMessage && (
               <div className="mb-2 bg-green-100 text-green-700 p-2 rounded">
@@ -1207,7 +1207,7 @@ const selectManager = (manager: Manager) => {
 
       {isContactModalOpen && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, maxWidth: { xs: '90%', sm: 'md' }, maxHeight: '90vh', overflowY: 'auto', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: { xs: '95%', sm: 'lg' }, width: '90vw', maxHeight: '90vh', overflowY: 'auto', boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="text-xl font-semibold mb-4" style={{ color: theme.palette.text.primary }}>
               {isEditingContact ? "Edit contact" : "Create new contact"}
             </h2>

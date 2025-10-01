@@ -1174,7 +1174,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
       {/* Modal de Edición */}
       {isEditModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: "background.paper", p: { xs: 3, sm: 4 }, borderRadius: 2, maxWidth: "md", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: "background.paper", p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: "lg", width: "90vw", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: theme.palette.text.primary }}>
               Edit Offer
             </h2>
@@ -1299,7 +1299,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
       {/* Modal de Detalles */}
       {isDetailsModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: "background.paper", p: { xs: 3, sm: 4 }, borderRadius: 2, maxWidth: "md", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: "background.paper", p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: "lg", width: "90vw", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
               <h2 className="text-lg sm:text-xl font-semibold" style={{ color: theme.palette.text.primary }}>
                 Offer Details
@@ -1419,7 +1419,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
       {/* Modal de Agregar desde Supplier */}
       {isAddSupplierModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: "background.paper", p: { xs: 3, sm: 4 }, borderRadius: 2, maxWidth: "md", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: "background.paper", p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: "xl", width: "90vw", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: theme.palette.text.primary }}>
               Add Offer from Supplier
             </h2>
@@ -1645,7 +1645,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
       {/* Modal de Confirmación */}
       {isConfirmationModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: "background.paper", p: { xs: 3, sm: 4 }, borderRadius: 2, maxWidth: "md", boxShadow: 3, color: theme.palette.text.primary, textAlign: "center" }}>
+          <Box sx={{ bgcolor: "background.paper", p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: "lg", width: "90vw", boxShadow: 3, color: theme.palette.text.primary, textAlign: "center" }}>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
               {confirmationStatus === "success" ? (
                 <FaCheck style={{ color: theme.palette.success.main, fontSize: 48, marginBottom: 2 }} />
@@ -1682,7 +1682,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
       {/* Modal de Agregar desde Advertiser */}
       {isAddAdvertiserModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: "background.paper", p: { xs: 3, sm: 4 }, borderRadius: 2, maxWidth: "md", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: "background.paper", p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: "lg", width: "90vw", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: theme.palette.text.primary }}>
               Add Offer from Advertiser
             </h2>

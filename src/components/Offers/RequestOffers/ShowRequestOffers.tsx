@@ -407,7 +407,7 @@ const ShowRequestOffers: React.FC = () => {
 
       {editRequest && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: "background.paper", p: { xs: 3, sm: 4 }, borderRadius: 2, maxWidth: 400, boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: "background.paper", p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: 'lg', width: '90vw', boxShadow: 3, color: theme.palette.text.primary }}>
             <h3 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: theme.palette.text.primary }}>
               {editRequest.OfferID ? "Edit Offer" : "Add Offer"}
             </h3>

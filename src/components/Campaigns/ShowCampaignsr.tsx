@@ -586,7 +586,7 @@ const ShowCampaigns: React.FC = () => {
 
       {isDeleteModalOpen && campaignToDelete && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, maxWidth: 'md', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: 'lg', width: '90vw', boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="text-lg font-semibold mb-4" style={{ color: theme.palette.text.primary }}>Confirmar Eliminación</h2>
             <p className="mb-6" style={{ color: theme.palette.text.secondary }}>
   ¿Estás seguro de que deseas eliminar la campaña &quot;{campaignToDelete.Campaign}&quot;?
@@ -605,7 +605,7 @@ const ShowCampaigns: React.FC = () => {
 
       {isHeadsModalOpen && (
         <Box sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0, 0, 0, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: 'background.paper', p: { xs: 3, sm: 4 }, borderRadius: 2, maxWidth: '3xl', boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: 'background.paper', p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: '4xl', width: '90vw', boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="text-xl sm:text-2xl font-bold mb-6" style={{ color: theme.palette.text.primary }}>Select Head Advertiser</h2>
             <Select
               value={selectedAdvertiser || ""}
