@@ -636,25 +636,55 @@ const FiltersDashboard: React.FC = () => {
                         </button>
                       </td>
                       <td className="px-2 sm:px-4 py-2 border-b border-gray-200 dark:border-gray-600">
-                        {item.Advertiser}
+                        <div 
+                          className="max-w-[150px] truncate cursor-help" 
+                          title={item.Advertiser}
+                        >
+                          {item.Advertiser}
+                        </div>
                       </td>
-                      <td className="px-2 sm:px-4 py-2 border-b border-gray-200 dark:border-gray-600">
-                        {item.Campaign}
-                      </td>
+                       <td className="px-2 sm:px-4 py-2 border-b border-gray-200 dark:border-gray-600">
+                         <div 
+                           className="max-w-[200px] truncate cursor-help" 
+                           title={item.Campaign}
+                         >
+                           {item.Campaign}
+                         </div>
+                       </td>
                       <td className="px-2 sm:px-4 py-2 border-b border-gray-200 dark:border-gray-600">
                         {item.RateCampaign}
                       </td>
                       <td className="px-2 sm:px-4 py-2 border-b border-gray-200 dark:border-gray-600">
-                        {item.AMAdvertiser}
+                        <div 
+                          className="max-w-[150px] truncate cursor-help" 
+                          title={item.AMAdvertiser}
+                        >
+                          {item.AMAdvertiser}
+                        </div>
                       </td>
                       <td className="px-2 sm:px-4 py-2 border-b border-gray-200 dark:border-gray-600">
-                        {item.Publisher}
+                        <div 
+                          className="max-w-[150px] truncate cursor-help" 
+                          title={item.Publisher}
+                        >
+                          {item.Publisher}
+                        </div>
                       </td>
                       <td className="px-2 sm:px-4 py-2 border-b border-gray-200 dark:border-gray-600">
-                        {item.Offer}
+                        <div 
+                          className="max-w-[200px] truncate cursor-help" 
+                          title={item.Offer}
+                        >
+                          {item.Offer}
+                        </div>
                       </td>
                       <td className="px-2 sm:px-4 py-2 border-b border-gray-200 dark:border-gray-600">
-                        {item.AMPublisher}
+                        <div 
+                          className="max-w-[150px] truncate cursor-help" 
+                          title={item.AMPublisher}
+                        >
+                          {item.AMPublisher}
+                        </div>
                       </td>
                       <td className="px-2 sm:px-4 py-2 border-b border-gray-200 dark:border-gray-600">
                         {item.Clicks}
