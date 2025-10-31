@@ -129,7 +129,12 @@ const FiltersDashboard: React.FC = () => {
         // Unificar/agrupar datos antes de guardarlos
         const unifiedData = unifyData(finalData);
 
-        setFilteredData(unifiedData);
+        // Ordenar por mayor cantidad de Clicks por defecto al cargar resultados
+        const sortedByClicksDesc = [...unifiedData].sort(
+          (a, b) => (b.Clicks || 0) - (a.Clicks || 0)
+        );
+
+        setFilteredData(sortedByClicksDesc);
         setOriginalData(unifiedData);
       }
     } catch (error) {
@@ -145,10 +150,16 @@ const FiltersDashboard: React.FC = () => {
       try {
         setIsLoading(true);
         const suppliersData = await getSuppliers();
-        setSuppliers(suppliersData.result || []);
+        const sortedSuppliers = (suppliersData.result || []).slice().sort((a: any, b: any) =>
+          String(a.Supplier || '').localeCompare(String(b.Supplier || ''))
+        );
+        setSuppliers(sortedSuppliers);
 
         const advertisersData = await getAdvertisers();
-        setAdvertisers(advertisersData.result || []);
+        const sortedAdvertisers = (advertisersData.result || []).slice().sort((a: any, b: any) =>
+          String(a.Advertiser || '').localeCompare(String(b.Advertiser || ''))
+        );
+        setAdvertisers(sortedAdvertisers);
       } catch (error) {
         console.error('Error fetching filter data:', error);
       } finally {
