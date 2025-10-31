@@ -36,6 +36,36 @@ const FiltersDashboard: React.FC = () => {
 
   const { resolvedTheme } = useTheme();
 
+  // Función para unificar/agrupar datos por Advertiser, Supplier, Campaign y Offer
+  const unifyData = useCallback((data: any[]) => {
+    const groupedMap = new Map<string, any>();
+
+    data.forEach((item) => {
+      // Crear una clave única basada en Advertiser, Supplier (Publisher), Campaign y Offer
+      const key = `${item.Advertiser || ''}_${item.Publisher || ''}_${item.Campaign || ''}_${item.Offer || ''}`;
+
+      if (groupedMap.has(key)) {
+        // Si ya existe, sumar los valores numéricos
+        const existing = groupedMap.get(key);
+        groupedMap.set(key, {
+          ...existing,
+          Clicks: (existing.Clicks || 0) + (item.Clicks || 0),
+          Installs: (existing.Installs || 0) + (item.Installs || 0),
+          Events: (existing.Events || 0) + (item.Events || 0),
+          Revenue: (existing.Revenue || 0) + (item.Revenue || 0),
+          Cost: (existing.Cost || 0) + (item.Cost || 0),
+          Profit: (existing.Profit || 0) + (item.Profit || 0),
+        });
+      } else {
+        // Si no existe, agregar como nueva entrada
+        groupedMap.set(key, { ...item });
+      }
+    });
+
+    // Convertir el Map a un array
+    return Array.from(groupedMap.values());
+  }, []);
+
   const handleRefresh = useCallback(async () => {
     try {
       if (!fromDate || !toDate) {
@@ -87,19 +117,20 @@ const FiltersDashboard: React.FC = () => {
           Profit: item.totalProfit ?? 0,
         }));
 
+        // Aplicar filtro por rol si es necesario
+        let finalData = transformedData;
         if (localStorage.getItem('RoleID') !== '9' && localStorage.getItem('RoleID') !== '3') {
           const userId = parseInt(localStorage.getItem('UserID') || '', 10);
-
-          const newTransformedData = transformedData.filter((item: any) =>
+          finalData = transformedData.filter((item: any) =>
             parseInt(item.AMAdvertiserID) === userId || parseInt(item.AMPublisherID) === userId
           );
-
-          setFilteredData(newTransformedData);
-          setOriginalData(newTransformedData);
-        } else {
-          setFilteredData(transformedData);
-          setOriginalData(transformedData);
         }
+
+        // Unificar/agrupar datos antes de guardarlos
+        const unifiedData = unifyData(finalData);
+
+        setFilteredData(unifiedData);
+        setOriginalData(unifiedData);
       }
     } catch (error) {
       console.error('Error al aplicar los filtros:', error);
