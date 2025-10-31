@@ -128,11 +128,8 @@ const FiltersDashboard: React.FC = () => {
     fetchFilters();
   }, []);
 
-  useEffect(() => {
-    if (selectedAdvertiser || selectedSupplier || fromDate || toDate) {
-      handleRefresh();
-    }
-  }, [selectedAdvertiser, selectedSupplier, fromDate, toDate, handleRefresh]);
+  // Removed automatic refresh on filter/date change to require manual refresh
+  // Users can click the "Refresh" button to fetch data explicitly
 
   const handleSupplierChange = (selectedOption: any) => {
     setSelectedSupplier(selectedOption);
