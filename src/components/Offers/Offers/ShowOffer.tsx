@@ -245,9 +245,72 @@ const ShowOffers: React.FC = () => {
   useEffect(() => {
     let filtered = allCampaigns;
     if (campaignSearchQuery.trim() !== "") {
-      const escapedQuery = campaignSearchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const regex = new RegExp(`\\b${escapedQuery}\\b`, "i");
-      filtered = filtered.filter((campaign) => regex.test(campaign.Campaign));
+      const query = campaignSearchQuery.trim().toLowerCase();
+      const queryWords = query.split(/\s+/).filter(word => word.length > 0);
+      
+      filtered = filtered.filter((campaign) => {
+        const campaignName = (campaign.Campaign || "").toLowerCase();
+        
+        // Si la query es muy corta (menos de 2 caracteres), solo buscar que empiece con
+        if (query.length < 2) {
+          return campaignName.startsWith(query);
+        }
+        
+        // Si hay múltiples palabras, todas deben estar presentes como palabras completas o substrings significativos
+        if (queryWords.length > 1) {
+          const meaningfulWords = queryWords.filter(word => word.length >= 2);
+          if (meaningfulWords.length === 0) {
+            return campaignName.includes(query);
+          }
+          // Todas las palabras significativas deben estar presentes
+          // Priorizar palabras completas sobre substrings parciales
+          return meaningfulWords.every(word => {
+            // Buscar como palabra completa primero (con límites de palabra)
+            const wordBoundaryRegex = new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+            if (wordBoundaryRegex.test(campaignName)) {
+              return true;
+            }
+            // Si no es palabra completa, buscar como substring pero solo si la palabra es suficientemente larga
+            if (word.length >= 3) {
+              return campaignName.includes(word);
+            }
+            // Para palabras cortas (2 caracteres), solo aceptar si es palabra completa
+            return false;
+          });
+        }
+        
+        // Para una sola palabra: buscar de forma más estricta
+        if (queryWords.length === 1) {
+          const word = queryWords[0];
+          
+          // Si la palabra es muy corta (1-2 caracteres), solo buscar al inicio
+          if (word.length <= 2) {
+            return campaignName.startsWith(word);
+          }
+          
+          // Para palabras de 3+ caracteres:
+          // 1. Priorizar palabras completas (con límites de palabra)
+          const wordBoundaryRegex = new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+          if (wordBoundaryRegex.test(campaignName)) {
+            return true;
+          }
+          
+          // 2. Si no es palabra completa, buscar como substring pero solo si empieza con esa palabra o está al inicio de una palabra
+          if (campaignName.startsWith(word)) {
+            return true;
+          }
+          
+          // 3. Buscar que esté contenida pero solo si la palabra es suficientemente larga (4+ caracteres)
+          if (word.length >= 4) {
+            return campaignName.includes(word);
+          }
+          
+          // Para palabras de 3 caracteres, solo aceptar si es palabra completa o empieza con
+          return false;
+        }
+        
+        return false;
+      });
     }
     filtered = filtered.filter((campaign) => !selectedSupplierCampaigns.includes(campaign.Campaign));
     setFilteredCampaigns(filtered);
