@@ -136,14 +136,21 @@ const FiltersDashboard: React.FC = () => {
 
         setFilteredData(sortedByClicksDesc);
         setOriginalData(unifiedData);
+      } else {
+        // Si no hay resultados, limpiar los datos anteriores
+        setFilteredData([]);
+        setOriginalData([]);
       }
     } catch (error) {
       console.error('Error al aplicar los filtros:', error);
+      // En caso de error, también limpiar los datos
+      setFilteredData([]);
+      setOriginalData([]);
     } finally {
       setIsLoading(false);
       setIsTableLoading(false);
     }
-  }, [fromDate, toDate, selectedAdvertiser, selectedSupplier]);
+  }, [fromDate, toDate, selectedAdvertiser, selectedSupplier, unifyData]);
 
   useEffect(() => {
     const fetchFilters = async () => {
