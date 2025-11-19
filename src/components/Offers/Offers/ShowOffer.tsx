@@ -411,6 +411,16 @@ const ShowOffers: React.FC = () => {
     );
   };
 
+  // Helper function to handle numeric input with decimal support
+  const handleNumericInputChange = (index: number, field: keyof OfferFormData, value: string) => {
+    // Allow empty string, numbers, one decimal point or comma
+    if (value === "" || /^[0-9]*[.,]?[0-9]*$/.test(value)) {
+      // Replace comma with point for consistency
+      const normalizedValue = value.replace(",", ".");
+      handleOfferFormChange(index, field, normalizedValue);
+    }
+  };
+
   const handleCreateOffers = async () => {
     if (offerForms.length === 0) {
       alert("Please select at least one campaign to create an offer.");
@@ -1619,10 +1629,17 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                             Cost
                           </label>
                           <Input
-                            type="number"
+                            type="text"
                             fullWidth
-                            value={form.cost}
-                            onChange={(e) => handleOfferFormChange(index, "cost", e.target.value)}
+                            value={form.cost === "0" ? "" : form.cost}
+                            onChange={(e) => handleNumericInputChange(index, "cost", e.target.value)}
+                            onBlur={(e) => {
+                              // If empty, set to "0", otherwise keep the value
+                              if (e.target.value === "") {
+                                handleOfferFormChange(index, "cost", "0");
+                              }
+                            }}
+                            inputProps={{ inputMode: "decimal", pattern: "[0-9]*[.,]?[0-9]*" }}
                             sx={{ height: 48, bgcolor: theme.palette.background.paper }}
                             startAdornment={<Box sx={{ color: theme.palette.text.secondary, mr: 1 }}>$</Box>}
                           />
@@ -1642,10 +1659,17 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                             Cap Clicks
                           </label>
                           <Input
-                            type="number"
+                            type="text"
                             fullWidth
-                            value={form.capClicks}
-                            onChange={(e) => handleOfferFormChange(index, "capClicks", e.target.value)}
+                            value={form.capClicks === "0" ? "" : form.capClicks}
+                            onChange={(e) => handleNumericInputChange(index, "capClicks", e.target.value)}
+                            onBlur={(e) => {
+                              // If empty, set to "0", otherwise keep the value
+                              if (e.target.value === "") {
+                                handleOfferFormChange(index, "capClicks", "0");
+                              }
+                            }}
+                            inputProps={{ inputMode: "decimal", pattern: "[0-9]*[.,]?[0-9]*" }}
                             sx={{ height: 48, bgcolor: theme.palette.background.paper }}
                           />
                         </Box>
@@ -1654,10 +1678,17 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                             Cap Install/Event
                           </label>
                           <Input
-                            type="number"
+                            type="text"
                             fullWidth
-                            value={form.capInstallEvent}
-                            onChange={(e) => handleOfferFormChange(index, "capInstallEvent", e.target.value)}
+                            value={form.capInstallEvent === "0" ? "" : form.capInstallEvent}
+                            onChange={(e) => handleNumericInputChange(index, "capInstallEvent", e.target.value)}
+                            onBlur={(e) => {
+                              // If empty, set to "0", otherwise keep the value
+                              if (e.target.value === "") {
+                                handleOfferFormChange(index, "capInstallEvent", "0");
+                              }
+                            }}
+                            inputProps={{ inputMode: "decimal", pattern: "[0-9]*[.,]?[0-9]*" }}
                             sx={{ height: 48, bgcolor: theme.palette.background.paper }}
                           />
                         </Box>

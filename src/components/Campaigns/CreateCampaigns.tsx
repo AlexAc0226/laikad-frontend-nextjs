@@ -688,6 +688,39 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
     }
   };
 
+  // Helper function to handle numeric input with decimal support and empty value handling
+  const handleNumericCampaignInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    fieldName: string
+  ) => {
+    const { value } = e.target;
+    // Allow empty string, numbers, one decimal point or comma
+    if (value === "" || /^[0-9]*[.,]?[0-9]*$/.test(value)) {
+      // Replace comma with point for consistency
+      const normalizedValue = value.replace(",", ".");
+      // Convert to number if it's a valid complete number
+      // If empty or just a decimal point, set to 0
+      let numValue: number;
+      if (normalizedValue === "" || normalizedValue === "." || normalizedValue === ",") {
+        numValue = 0;
+      } else {
+        // If it ends with a decimal point, parse the number part before the point
+        // This allows typing "9." without immediately converting to 9
+        if (normalizedValue.endsWith(".")) {
+          const numPart = normalizedValue.slice(0, -1);
+          numValue = numPart === "" ? 0 : Number(numPart);
+        } else {
+          const parsed = Number(normalizedValue);
+          numValue = isNaN(parsed) ? 0 : parsed;
+        }
+      }
+      setCurrentInfo((prev) => ({
+        ...prev,
+        [fieldName]: numValue,
+      }));
+    }
+  };
+
   const submitForm = async () => {
     try {
       setIsSubmitting(true);
@@ -1131,9 +1164,29 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 variant="outlined"
                 label="PayOut - Install"
                 name="Revenue"
-                type="number"
-                value={currentInfo.Revenue}
-                onChange={handleCampaignInputChange}
+                type="text"
+                value={currentInfo.Revenue === 0 ? "" : currentInfo.Revenue.toString()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  // Allow empty, numbers, and decimal point/comma
+                  if (val === "" || /^[0-9]*[.,]?[0-9]*$/.test(val)) {
+                    handleNumericCampaignInputChange(e, "Revenue");
+                  }
+                }}
+                onBlur={(e) => {
+                  const val = e.target.value.trim();
+                  if (val === "" || val === "0" || val === "." || val === ",") {
+                    setCurrentInfo((prev) => ({ ...prev, Revenue: 0 }));
+                  } else {
+                    // Ensure the value is properly set as a number
+                    const normalized = val.replace(",", ".");
+                    const numVal = Number(normalized);
+                    if (!isNaN(numVal)) {
+                      setCurrentInfo((prev) => ({ ...prev, Revenue: numVal }));
+                    }
+                  }
+                }}
+                inputProps={{ inputMode: "decimal", pattern: "[0-9]*[.,]?[0-9]*" }}
                 sx={{ mb: 3 }}
               />
 
@@ -1142,9 +1195,29 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 variant="outlined"
                 label="PayOut - Event"
                 name="eventPayOut1"
-                type="number"
-                value={currentInfo.eventPayOut1}
-                onChange={handleCampaignInputChange}
+                type="text"
+                value={currentInfo.eventPayOut1 === 0 ? "" : currentInfo.eventPayOut1.toString()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  // Allow empty, numbers, and decimal point/comma
+                  if (val === "" || /^[0-9]*[.,]?[0-9]*$/.test(val)) {
+                    handleNumericCampaignInputChange(e, "eventPayOut1");
+                  }
+                }}
+                onBlur={(e) => {
+                  const val = e.target.value.trim();
+                  if (val === "" || val === "0" || val === "." || val === ",") {
+                    setCurrentInfo((prev) => ({ ...prev, eventPayOut1: 0 }));
+                  } else {
+                    // Ensure the value is properly set as a number
+                    const normalized = val.replace(",", ".");
+                    const numVal = Number(normalized);
+                    if (!isNaN(numVal)) {
+                      setCurrentInfo((prev) => ({ ...prev, eventPayOut1: numVal }));
+                    }
+                  }
+                }}
+                inputProps={{ inputMode: "decimal", pattern: "[0-9]*[.,]?[0-9]*" }}
                 sx={{ mb: 3 }}
               />
 
@@ -1173,9 +1246,29 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 variant="outlined"
                 label="Daily Click"
                 name="DailyQuantityClick"
-                type="number"
-                value={currentInfo.DailyQuantityClick}
-                onChange={handleCampaignInputChange}
+                type="text"
+                value={currentInfo.DailyQuantityClick === 0 ? "" : currentInfo.DailyQuantityClick.toString()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  // Allow empty, numbers, and decimal point/comma
+                  if (val === "" || /^[0-9]*[.,]?[0-9]*$/.test(val)) {
+                    handleNumericCampaignInputChange(e, "DailyQuantityClick");
+                  }
+                }}
+                onBlur={(e) => {
+                  const val = e.target.value.trim();
+                  if (val === "" || val === "0" || val === "." || val === ",") {
+                    setCurrentInfo((prev) => ({ ...prev, DailyQuantityClick: 0 }));
+                  } else {
+                    // Ensure the value is properly set as a number
+                    const normalized = val.replace(",", ".");
+                    const numVal = Number(normalized);
+                    if (!isNaN(numVal)) {
+                      setCurrentInfo((prev) => ({ ...prev, DailyQuantityClick: numVal }));
+                    }
+                  }
+                }}
+                inputProps={{ inputMode: "decimal", pattern: "[0-9]*[.,]?[0-9]*" }}
                 sx={{ mb: 3 }}
               />
 
@@ -1184,9 +1277,29 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 variant="outlined"
                 label="Daily Installs"
                 name="DailyQuantity"
-                type="number"
-                value={currentInfo.DailyQuantity}
-                onChange={handleCampaignInputChange}
+                type="text"
+                value={currentInfo.DailyQuantity === 0 ? "" : currentInfo.DailyQuantity.toString()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  // Allow empty, numbers, and decimal point/comma
+                  if (val === "" || /^[0-9]*[.,]?[0-9]*$/.test(val)) {
+                    handleNumericCampaignInputChange(e, "DailyQuantity");
+                  }
+                }}
+                onBlur={(e) => {
+                  const val = e.target.value.trim();
+                  if (val === "" || val === "0" || val === "." || val === ",") {
+                    setCurrentInfo((prev) => ({ ...prev, DailyQuantity: 0 }));
+                  } else {
+                    // Ensure the value is properly set as a number
+                    const normalized = val.replace(",", ".");
+                    const numVal = Number(normalized);
+                    if (!isNaN(numVal)) {
+                      setCurrentInfo((prev) => ({ ...prev, DailyQuantity: numVal }));
+                    }
+                  }
+                }}
+                inputProps={{ inputMode: "decimal", pattern: "[0-9]*[.,]?[0-9]*" }}
                 sx={{ mb: 3 }}
               />
 
