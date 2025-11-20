@@ -7,7 +7,6 @@ import { getCampaignsByAdvertiserID, getAllCampaigns } from "@/app/api/campaign/
 import { Box, Button, Select, MenuItem, Input, Table, TableBody, TableCell, TableHead, TableRow, CircularProgress, useTheme, TextareaAutosize, Tooltip, SelectChangeEvent } from "@mui/material";
 import { sendMailSupplier } from "@/app/api/filtersService/filtersService";
 import ClickAwayListener from '@mui/material/ClickAwayListener';
-import SearchableSelect from "@/components/SelectOption/SearchableSelect";
 
 interface Advertiser {
   AdvertiserID: number;
@@ -242,79 +241,42 @@ const ShowOffers: React.FC = () => {
   }, [isAddSupplierModalOpen]);
 
   // Filter campaigns based on search query and exclude selected campaigns
-  useEffect(() => {
-    let filtered = allCampaigns;
-    if (campaignSearchQuery.trim() !== "") {
-      const query = campaignSearchQuery.trim().toLowerCase();
-      const queryWords = query.split(/\s+/).filter(word => word.length > 0);
-      
-      filtered = filtered.filter((campaign) => {
-        const campaignName = (campaign.Campaign || "").toLowerCase();
-        
-        // Si la query es muy corta (menos de 2 caracteres), solo buscar que empiece con
-        if (query.length < 2) {
-          return campaignName.startsWith(query);
-        }
-        
-        // Si hay múltiples palabras, todas deben estar presentes como palabras completas o substrings significativos
-        if (queryWords.length > 1) {
-          const meaningfulWords = queryWords.filter(word => word.length >= 2);
-          if (meaningfulWords.length === 0) {
-            return campaignName.includes(query);
-          }
-          // Todas las palabras significativas deben estar presentes
-          // Priorizar palabras completas sobre substrings parciales
-          return meaningfulWords.every(word => {
-            // Buscar como palabra completa primero (con límites de palabra)
-            const wordBoundaryRegex = new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
-            if (wordBoundaryRegex.test(campaignName)) {
-              return true;
-            }
-            // Si no es palabra completa, buscar como substring pero solo si la palabra es suficientemente larga
-            if (word.length >= 3) {
-              return campaignName.includes(word);
-            }
-            // Para palabras cortas (2 caracteres), solo aceptar si es palabra completa
-            return false;
-          });
-        }
-        
-        // Para una sola palabra: buscar de forma más estricta
-        if (queryWords.length === 1) {
-          const word = queryWords[0];
-          
-          // Si la palabra es muy corta (1-2 caracteres), solo buscar al inicio
-          if (word.length <= 2) {
-            return campaignName.startsWith(word);
-          }
-          
-          // Para palabras de 3+ caracteres:
-          // 1. Priorizar palabras completas (con límites de palabra)
-          const wordBoundaryRegex = new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
-          if (wordBoundaryRegex.test(campaignName)) {
-            return true;
-          }
-          
-          // 2. Si no es palabra completa, buscar como substring pero solo si empieza con esa palabra o está al inicio de una palabra
-          if (campaignName.startsWith(word)) {
-            return true;
-          }
-          
-          // 3. Buscar que esté contenida pero solo si la palabra es suficientemente larga (4+ caracteres)
-          if (word.length >= 4) {
-            return campaignName.includes(word);
-          }
-          
-          // Para palabras de 3 caracteres, solo aceptar si es palabra completa o empieza con
-          return false;
-        }
-        
-        return false;
-      });
-    }
-    filtered = filtered.filter((campaign) => !selectedSupplierCampaigns.includes(campaign.Campaign));
-    setFilteredCampaigns(filtered);
-  }, [campaignSearchQuery, allCampaigns, selectedSupplierCampaigns]);
+ useEffect(() => {
+  let filtered = allCampaigns;
+
+  const query = campaignSearchQuery.trim().toLowerCase();
+
+  if (query !== "") {
+    filtered = filtered.filter((campaign) => {
+      const name = String(campaign.Campaign ?? "").toLowerCase();
+      const adv  = String(campaign.Advertiser ?? "").toLowerCase();
+      const id   = String(campaign.CampaignID ?? "").toLowerCase();
+
+      return (
+        name.includes(query) ||
+        adv.includes(query) ||
+        id.includes(query)
+      );
+    });
+  }
+
+  // excluir campañas ya seleccionadas
+  filtered = filtered.filter(
+    (campaign) => !selectedSupplierCampaigns.includes(campaign.Campaign)
+  );
+
+  // 🔹 eliminar duplicados por nombre de campaña
+  const seen = new Set<string>();
+  filtered = filtered.filter((c) => {
+    if (seen.has(c.Campaign)) return false;
+    seen.add(c.Campaign);
+    return true;
+  });
+
+  setFilteredCampaigns(filtered);
+}, [campaignSearchQuery, allCampaigns, selectedSupplierCampaigns]);
+
+
 
   // Handle clicks outside the campaign dropdown to close it
   useEffect(() => {
@@ -409,16 +371,6 @@ const ShowOffers: React.FC = () => {
         i === index ? { ...form, [field]: value } : form
       )
     );
-  };
-
-  // Helper function to handle numeric input with decimal support
-  const handleNumericInputChange = (index: number, field: keyof OfferFormData, value: string) => {
-    // Allow empty string, numbers, one decimal point or comma
-    if (value === "" || /^[0-9]*[.,]?[0-9]*$/.test(value)) {
-      // Replace comma with point for consistency
-      const normalizedValue = value.replace(",", ".");
-      handleOfferFormChange(index, field, normalizedValue);
-    }
   };
 
   const handleCreateOffers = async () => {
@@ -1247,7 +1199,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
       {/* Modal de Edición */}
       {isEditModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: "background.paper", p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: "lg", width: "90vw", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: "background.paper", p: { xs: 3, sm: 4 }, borderRadius: 2, maxWidth: "md", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: theme.palette.text.primary }}>
               Edit Offer
             </h2>
@@ -1372,7 +1324,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
       {/* Modal de Detalles */}
       {isDetailsModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: "background.paper", p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: "lg", width: "90vw", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: "background.paper", p: { xs: 3, sm: 4 }, borderRadius: 2, maxWidth: "md", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
               <h2 className="text-lg sm:text-xl font-semibold" style={{ color: theme.palette.text.primary }}>
                 Offer Details
@@ -1492,7 +1444,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
       {/* Modal de Agregar desde Supplier */}
       {isAddSupplierModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: "background.paper", p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: "xl", width: "90vw", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: "background.paper", p: { xs: 3, sm: 4 }, borderRadius: 2, maxWidth: "md", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: theme.palette.text.primary }}>
               Add Offer from Supplier
             </h2>
@@ -1509,18 +1461,28 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                   <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: 1 }}>
                     Supplier
                   </label>
-                  <SearchableSelect
-                    options={suppliers.map((sup) => ({
-                      value: sup.SupplierID,
-                      label: sup.Supplier
-                    }))}
-                    value={selectedSupplier}
-                    onChange={(value) => setSelectedSupplier(value.toString())}
-                    placeholder="Search suppliers..."
+                  <Select
                     fullWidth
-                    clearable
-                    onClear={() => setSelectedSupplier("")}
-                  />
+                    value={selectedSupplier}
+                    onChange={(e) => setSelectedSupplier(e.target.value)}
+                    sx={{
+                      height: 48,
+                      bgcolor: "background.paper",
+                      "& .MuiSelect-select": { color: theme.palette.text.primary },
+                      "& .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.divider },
+                      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
+                    }}
+                    displayEmpty
+                  >
+                    <MenuItem value="" disabled>
+                      Select...
+                    </MenuItem>
+                    {suppliers.map((sup) => (
+                      <MenuItem key={sup.SupplierID} value={sup.SupplierID}>
+                        {sup.Supplier}
+                      </MenuItem>
+                    ))}
+                  </Select>
                 </Box>
                 <Box sx={{ position: "relative" }}>
                   <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: 1 }}>
@@ -1629,17 +1591,10 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                             Cost
                           </label>
                           <Input
-                            type="text"
+                            type="number"
                             fullWidth
-                            value={form.cost === "0" ? "" : form.cost}
-                            onChange={(e) => handleNumericInputChange(index, "cost", e.target.value)}
-                            onBlur={(e) => {
-                              // If empty, set to "0", otherwise keep the value
-                              if (e.target.value === "") {
-                                handleOfferFormChange(index, "cost", "0");
-                              }
-                            }}
-                            inputProps={{ inputMode: "decimal", pattern: "[0-9]*[.,]?[0-9]*" }}
+                            value={form.cost}
+                            onChange={(e) => handleOfferFormChange(index, "cost", e.target.value)}
                             sx={{ height: 48, bgcolor: theme.palette.background.paper }}
                             startAdornment={<Box sx={{ color: theme.palette.text.secondary, mr: 1 }}>$</Box>}
                           />
@@ -1659,17 +1614,10 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                             Cap Clicks
                           </label>
                           <Input
-                            type="text"
+                            type="number"
                             fullWidth
-                            value={form.capClicks === "0" ? "" : form.capClicks}
-                            onChange={(e) => handleNumericInputChange(index, "capClicks", e.target.value)}
-                            onBlur={(e) => {
-                              // If empty, set to "0", otherwise keep the value
-                              if (e.target.value === "") {
-                                handleOfferFormChange(index, "capClicks", "0");
-                              }
-                            }}
-                            inputProps={{ inputMode: "decimal", pattern: "[0-9]*[.,]?[0-9]*" }}
+                            value={form.capClicks}
+                            onChange={(e) => handleOfferFormChange(index, "capClicks", e.target.value)}
                             sx={{ height: 48, bgcolor: theme.palette.background.paper }}
                           />
                         </Box>
@@ -1678,17 +1626,10 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                             Cap Install/Event
                           </label>
                           <Input
-                            type="text"
+                            type="number"
                             fullWidth
-                            value={form.capInstallEvent === "0" ? "" : form.capInstallEvent}
-                            onChange={(e) => handleNumericInputChange(index, "capInstallEvent", e.target.value)}
-                            onBlur={(e) => {
-                              // If empty, set to "0", otherwise keep the value
-                              if (e.target.value === "") {
-                                handleOfferFormChange(index, "capInstallEvent", "0");
-                              }
-                            }}
-                            inputProps={{ inputMode: "decimal", pattern: "[0-9]*[.,]?[0-9]*" }}
+                            value={form.capInstallEvent}
+                            onChange={(e) => handleOfferFormChange(index, "capInstallEvent", e.target.value)}
                             sx={{ height: 48, bgcolor: theme.palette.background.paper }}
                           />
                         </Box>
@@ -1739,7 +1680,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
       {/* Modal de Confirmación */}
       {isConfirmationModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: "background.paper", p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: "lg", width: "90vw", boxShadow: 3, color: theme.palette.text.primary, textAlign: "center" }}>
+          <Box sx={{ bgcolor: "background.paper", p: { xs: 3, sm: 4 }, borderRadius: 2, maxWidth: "md", boxShadow: 3, color: theme.palette.text.primary, textAlign: "center" }}>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
               {confirmationStatus === "success" ? (
                 <FaCheck style={{ color: theme.palette.success.main, fontSize: 48, marginBottom: 2 }} />
@@ -1776,7 +1717,7 @@ Status: ${selectedOfferForDetails.status || "N/A"}
       {/* Modal de Agregar desde Advertiser */}
       {isAddAdvertiserModalOpen && (
         <Box sx={{ position: "fixed", inset: 0, bgcolor: "rgba(0, 0, 0, 0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, p: 2 }}>
-          <Box sx={{ bgcolor: "background.paper", p: { xs: 4, sm: 6 }, borderRadius: 2, maxWidth: "lg", width: "90vw", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
+          <Box sx={{ bgcolor: "background.paper", p: { xs: 3, sm: 4 }, borderRadius: 2, maxWidth: "md", maxHeight: "90vh", overflowY: "auto", boxShadow: 3, color: theme.palette.text.primary }}>
             <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: theme.palette.text.primary }}>
               Add Offer from Advertiser
             </h2>
@@ -1793,18 +1734,28 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                   <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: 1 }}>
                     Advertiser
                   </label>
-                  <SearchableSelect
-                    options={advertisers.map((adv) => ({
-                      value: adv.AdvertiserID,
-                      label: adv.Advertiser
-                    }))}
-                    value={selectedAdvertiser}
-                    onChange={(value) => setSelectedAdvertiser(value.toString())}
-                    placeholder="Search advertisers..."
+                  <Select
                     fullWidth
-                    clearable
-                    onClear={() => setSelectedAdvertiser("")}
-                  />
+                    value={selectedAdvertiser}
+                    onChange={(e) => setSelectedAdvertiser(e.target.value)}
+                    sx={{
+                      height: 48,
+                      bgcolor: "background.paper",
+                      "& .MuiSelect-select": { color: theme.palette.text.primary },
+                      "& .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.divider },
+                      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
+                    }}
+                    displayEmpty
+                  >
+                    <MenuItem value="" disabled>
+                      Select...
+                    </MenuItem>
+                    {advertisers.map((adv) => (
+                      <MenuItem key={adv.AdvertiserID} value={adv.AdvertiserID}>
+                        {adv.Advertiser}
+                      </MenuItem>
+                    ))}
+                  </Select>
                 </Box>
                 <Box>
                   <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: 1 }}>
@@ -1861,18 +1812,28 @@ Status: ${selectedOfferForDetails.status || "N/A"}
                   <label className="block text-sm font-medium" style={{ color: theme.palette.text.secondary, marginBottom: 1 }}>
                     Suppliers
                   </label>
-                  <SearchableSelect
-                    options={suppliers.map((sup) => ({
-                      value: sup.SupplierID,
-                      label: sup.Supplier
-                    }))}
-                    value={selectedAdvertiserSupplier}
-                    onChange={(value) => setSelectedAdvertiserSupplier(value.toString())}
-                    placeholder="Search suppliers..."
+                  <Select
                     fullWidth
-                    clearable
-                    onClear={() => setSelectedAdvertiserSupplier("")}
-                  />
+                    value={selectedAdvertiserSupplier}
+                    onChange={(e) => setSelectedAdvertiserSupplier(e.target.value)}
+                    sx={{
+                      height: 48,
+                      bgcolor: "background.paper",
+                      "& .MuiSelect-select": { color: theme.palette.text.primary },
+                      "& .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.divider },
+                      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
+                    }}
+                    displayEmpty
+                  >
+                    <MenuItem value="" disabled>
+                      Select...
+                    </MenuItem>
+                    {suppliers.map((sup) => (
+                      <MenuItem key={sup.SupplierID} value={sup.SupplierID}>
+                        {sup.Supplier}
+                      </MenuItem>
+                    ))}
+                  </Select>
                 </Box>
               </Box>
             )}
