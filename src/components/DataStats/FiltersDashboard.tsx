@@ -47,14 +47,24 @@ const FiltersDashboard: React.FC = () => {
       if (groupedMap.has(key)) {
         // Si ya existe, sumar los valores numéricos
         const existing = groupedMap.get(key);
+        const totalEvents = (existing.Events || 0) + (item.Events || 0);
+        const totalRevenue = (existing.Revenue || 0) + (item.Revenue || 0);
+        
+        // Recalcular RateCampaign para campañas CP2 después de unificar
+        let rateCampaign = existing.RateCampaign || item.RateCampaign || '';
+        if (existing.CampaignTypeID === 'CP2' && totalEvents > 0 && totalRevenue > 0) {
+          rateCampaign = (totalRevenue / totalEvents).toFixed(2);
+        }
+        
         groupedMap.set(key, {
           ...existing,
           Clicks: (existing.Clicks || 0) + (item.Clicks || 0),
           Installs: (existing.Installs || 0) + (item.Installs || 0),
-          Events: (existing.Events || 0) + (item.Events || 0),
-          Revenue: (existing.Revenue || 0) + (item.Revenue || 0),
+          Events: totalEvents,
+          Revenue: totalRevenue,
           Cost: (existing.Cost || 0) + (item.Cost || 0),
           Profit: (existing.Profit || 0) + (item.Profit || 0),
+          RateCampaign: rateCampaign,
         });
       } else {
         // Si no existe, agregar como nueva entrada
@@ -95,27 +105,45 @@ const FiltersDashboard: React.FC = () => {
       );
 
       if (response?.body?.result?.length) {
-        const transformedData = response.body.result.map((item: any) => ({
-          CampaignID: item.CampaignID,
-          AdvertiserID: item.AdvertiserID,
-          SupplierID: item.SupplierID,
-          Advertiser: item.Advertiser ?? '',
-          Campaign: item.Campaign ?? '',
-          RateCampaign: item.RateCampaign ?? '',
-          AMPublisher: item.AccountManager ?? '',
-          AMPublisherID: item.AccountManagerID ?? '',
-          AMAdvertiser: item.AccountManagerAdv ?? '',
-          AMAdvertiserID: item.AccountManagerIDAdv ?? '',
-          Publisher: item.Supplier ?? '',
-          Offer: item.Campaign ?? '',
-          OfferID: item.OfferID ?? '',
-          Clicks: item.totalClick ?? 0,
-          Installs: item.totalInstall ?? 0,
-          Events: item.totalEvent ?? 0,
-          Revenue: item.totalRevenue ?? 0,
-          Cost: item.totalCost ?? 0,
-          Profit: item.totalProfit ?? 0,
-        }));
+        const transformedData = response.body.result.map((item: any) => {
+          // Para campañas CPA-Events (CP2), si RateCampaign es 0 o vacío, calcular el rate desde Revenue/Events
+          const campaignTypeID = item.CampaignTypeID || '';
+          let rateCampaign = item.RateCampaign ?? '';
+          
+          // Si es campaña CP2 (CPA-Events) y RateCampaign es 0 o vacío, calcular desde Revenue/Events
+          if (campaignTypeID === 'CP2' && (!rateCampaign || rateCampaign === '0' || rateCampaign === '')) {
+            const totalEvents = item.totalEvent || 0;
+            const totalRevenue = item.totalRevenue || 0;
+            
+            // Si hay eventos, calcular el rate promedio (Revenue / Events)
+            if (totalEvents > 0 && totalRevenue > 0) {
+              rateCampaign = (totalRevenue / totalEvents).toFixed(2);
+            }
+          }
+          
+          return {
+            CampaignID: item.CampaignID,
+            AdvertiserID: item.AdvertiserID,
+            SupplierID: item.SupplierID,
+            Advertiser: item.Advertiser ?? '',
+            Campaign: item.Campaign ?? '',
+            CampaignTypeID: campaignTypeID,
+            RateCampaign: rateCampaign,
+            AMPublisher: item.AccountManager ?? '',
+            AMPublisherID: item.AccountManagerID ?? '',
+            AMAdvertiser: item.AccountManagerAdv ?? '',
+            AMAdvertiserID: item.AccountManagerIDAdv ?? '',
+            Publisher: item.Supplier ?? '',
+            Offer: item.Campaign ?? '',
+            OfferID: item.OfferID ?? '',
+            Clicks: item.totalClick ?? 0,
+            Installs: item.totalInstall ?? 0,
+            Events: item.totalEvent ?? 0,
+            Revenue: item.totalRevenue ?? 0,
+            Cost: item.totalCost ?? 0,
+            Profit: item.totalProfit ?? 0,
+          };
+        });
 
         // Aplicar filtro por rol si es necesario
         let finalData = transformedData;
