@@ -8,10 +8,21 @@ import { createOrUpdateCampaignHead } from "@/app/api/head/service";
 import { getCategories } from "@/app/api/category/service";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import apiClient from "@/libs/axiosConfig";
-import Select from 'react-select';
-import Image from 'next/image';
-import { styled } from '@mui/material/styles';
-import { Box, Button, TextField, Typography, FormControl, InputLabel, MenuItem, Select as MuiSelect, Checkbox, FormControlLabel } from '@mui/material';
+import Select from "react-select";
+import Image from "next/image";
+import { styled } from "@mui/material/styles";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select as MuiSelect,
+  Checkbox,
+  FormControlLabel,
+} from "@mui/material";
 import SearchableSelect from "@/components/SelectOption/SearchableSelect";
 
 interface Info {
@@ -178,81 +189,84 @@ interface CurrentInfoHead {
 }
 
 const StyledContainer = styled(Box)(({ theme }) => ({
-  position: 'fixed',
+  position: "fixed",
   inset: 0,
   zIndex: 50,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  overflow: 'auto',
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  overflow: "auto",
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
   padding: theme.spacing(2),
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(1),
   },
 }));
 
 const StyledCard = styled(Box)(({ theme }) => ({
-  width: '100%',
-  maxWidth: '1200px',
-  maxHeight: '95vh',
-  overflowY: 'auto',
+  width: "100%",
+  maxWidth: "1200px",
+  maxHeight: "95vh",
+  overflowY: "auto",
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
   boxShadow: theme.shadows[5],
   padding: theme.spacing(4),
-  [theme.breakpoints.down('lg')]: {
-    maxWidth: '95vw',
+  [theme.breakpoints.down("lg")]: {
+    maxWidth: "95vw",
     padding: theme.spacing(3),
   },
-  [theme.breakpoints.down('md')]: {
-    maxWidth: '100%',
+  [theme.breakpoints.down("md")]: {
+    maxWidth: "100%",
     padding: theme.spacing(2),
   },
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(1),
   },
 }));
 
 const StyledHeader = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
   borderBottom: `1px solid ${theme.palette.divider}`,
   paddingBottom: theme.spacing(2),
   marginBottom: theme.spacing(2),
 }));
 
 const StyledForm = styled(Box)(({ theme }) => ({
-  display: 'grid',
+  display: "grid",
   gap: theme.spacing(3),
 }));
 
 const StyledMacroButtons = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexWrap: 'wrap',
+  display: "flex",
+  flexWrap: "wrap",
   gap: theme.spacing(1),
   marginTop: theme.spacing(1),
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
   },
 }));
 
 const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
   const [advertisers, setAdvertisers] = useState<Advertiser[]>(
-    props.advertisers.sort((a, b) => a.Advertiser.localeCompare(b.Advertiser)),
+    props.advertisers.sort((a, b) => a.Advertiser.localeCompare(b.Advertiser))
   );
   const [heads, setHeads] = useState<CampaignHead[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
 
   const [flagCreatedHead, setFlagCreatedHead] = useState<boolean>(false);
-  const [countryAction, setCountryAction] = useState<"Include" | "Exclude">("Include");
+  const [countryAction, setCountryAction] = useState<"Include" | "Exclude">(
+    "Include"
+  );
   const [selectedCountries, setSelectedCountries] = useState<Country[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [flagCreateCampaign, setFlagCreateCampaign] = useState<boolean>(false);
-  const [flagCreatedCampaign, setFlagCreatedCampaign] = useState<boolean>(false);
-  
+  const [flagCreatedCampaign, setFlagCreatedCampaign] =
+    useState<boolean>(false);
+
   type RegionOption = {
     RegionName: string;
     countryCityID: string;
@@ -263,7 +277,7 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
   const [regionsList, setRegionsList] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState<boolean>(false);
-  
+
   const trackingLinkRef = useRef<HTMLTextAreaElement>(null);
 
   const isEditing = !!props.campaignToEdit;
@@ -333,16 +347,19 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
         IncludeCities: false,
         Cities: [],
       },
-    },
+    }
   );
 
   const [currentInfoHead, setCurrentInfoHead] = useState<CurrentInfoHead>({
     CampaignHeadID: props.campaignToEdit?.CampaignHeadID || 0,
     CampaignTypeID: props.campaignToEdit?.CampaignTypeID || "",
     CampaignType: props.campaignToEdit?.CampaignTypeID
-      ? listCampaignType.find((ct) => ct.CampaignTypeID === props.campaignToEdit!.CampaignTypeID)?.CampaignType || ""
+      ? listCampaignType.find(
+          (ct) => ct.CampaignTypeID === props.campaignToEdit!.CampaignTypeID
+        )?.CampaignType || ""
       : "",
-    AdvertiserID: props.campaignToEdit?.AdvertiserID || props.selectedAdvertiser || 0,
+    AdvertiserID:
+      props.campaignToEdit?.AdvertiserID || props.selectedAdvertiser || 0,
     CampaignCategoryID: 0,
     CampaignCategory: props.campaignToEdit?.Geo?.CampaignCategory || "",
     DeviceID: "",
@@ -368,6 +385,24 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
     CampaignHead: "",
   });
 
+  // ✅ Solo habilitar campos de evento si el Head Type es CP2 / CPA-Events
+  const isEventType = React.useMemo(() => {
+    const typeId = (currentInfoHead.CampaignTypeID || "").toString().trim();
+    const typeLabel = (currentInfoHead.CampaignType || "").toString().trim();
+    return typeId === "CP2" || typeId === "CPA-Events" || typeLabel === "CPA-Events";
+  }, [currentInfoHead.CampaignTypeID, currentInfoHead.CampaignType]);
+
+  // ✅ Limpiar valores si no es EventType (evita enviar valores viejos al backend)
+  useEffect(() => {
+    if (!isEventType) {
+      setCurrentInfo((prev) => ({
+        ...prev,
+        eventPayOut1: 0,
+        eventsName1: "",
+      }));
+    }
+  }, [isEventType]);
+
   const listDevice: Device[] = [
     { Device: "AOS", DeviceID: "AOS" },
     { Device: "Android", DeviceID: "AND" },
@@ -375,52 +410,55 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
     { Device: "Web/Desktop", DeviceID: "WEB" },
   ];
 
-  const fetchRegionsByCountry = useCallback(async (countryCode: string) => {
-    try {
-      const response = await apiClient.get('/cities', {
-        params: {
-          Countries: countryCode,
-          Regions: undefined,
-          City: undefined,
-        },
-        headers: {
-          "Access-Token": localStorage.getItem("accessToken"),
-        },
-      });
+  const fetchRegionsByCountry = useCallback(
+    async (countryCode: string) => {
+      try {
+        const response = await apiClient.get("/cities", {
+          params: {
+            Countries: countryCode,
+            Regions: undefined,
+            City: undefined,
+          },
+          headers: {
+            "Access-Token": localStorage.getItem("accessToken"),
+          },
+        });
 
-      if (response.data && response.data.result) {
-        const seen = new Set<string>();
-        const uniqueRegions = response.data.result
-          .map((region: any) => ({
-            RegionName: region.RegionName || region.CityName || "Unknown",
-            countryCityID: region.CountryCityID?.toString() || "",
-          }))
-          .filter((region: any) => {
-            if (!region.RegionName) return false;
-            if (seen.has(region.RegionName)) return false;
-            seen.add(region.RegionName);
-            return true;
-          });
+        if (response.data && response.data.result) {
+          const seen = new Set<string>();
+          const uniqueRegions = response.data.result
+            .map((region: any) => ({
+              RegionName: region.RegionName || region.CityName || "Unknown",
+              countryCityID: region.CountryCityID?.toString() || "",
+            }))
+            .filter((region: any) => {
+              if (!region.RegionName) return false;
+              if (seen.has(region.RegionName)) return false;
+              seen.add(region.RegionName);
+              return true;
+            });
 
-        setRegionsList(uniqueRegions);
+          setRegionsList(uniqueRegions);
 
-        if (isEditing && props.campaignToEdit?.Geo.IncludeRegions) {
-          const preloadedRegions = props.campaignToEdit.Geo.Regions
-            .filter((region) => !region.RegionName.includes("-"))
-            .map((region) => ({
+          if (isEditing && props.campaignToEdit?.Geo.IncludeRegions) {
+            const preloadedRegions = props.campaignToEdit.Geo.Regions.filter(
+              (region) => !region.RegionName.includes("-")
+            ).map((region) => ({
               RegionName: region.RegionName,
               countryCityID: region.code || "",
             }));
-          setSelectedRegions(preloadedRegions);
+            setSelectedRegions(preloadedRegions);
+          }
+        } else {
+          setRegionsList([]);
         }
-      } else {
+      } catch (error) {
+        console.error("Error fetching regions:", error);
         setRegionsList([]);
       }
-    } catch (error) {
-      console.error("Error fetching regions:", error);
-      setRegionsList([]);
-    }
-  }, [isEditing, props.campaignToEdit]);
+    },
+    [isEditing, props.campaignToEdit]
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -440,10 +478,12 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
 
   useEffect(() => {
     if (isEditing && props.campaignToEdit?.Geo) {
-      const preloadedCountries = props.campaignToEdit.Geo.Countries.map((country) => ({
-        Code2: country.Code2,
-        country: country.country,
-      }));
+      const preloadedCountries = props.campaignToEdit.Geo.Countries.map(
+        (country) => ({
+          Code2: country.Code2,
+          country: country.country,
+        })
+      );
       setSelectedCountries(preloadedCountries);
 
       if (preloadedCountries.length === 1 && props.campaignToEdit.Geo.IncludeRegions) {
@@ -465,13 +505,15 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
       try {
         const data = await getCategories();
         const joinCategories = [...arrayHeadCategoies, ...data.result].sort(
-          (a: Category, b: Category) => a.Description.localeCompare(b.Description),
+          (a: Category, b: Category) =>
+            a.Description.localeCompare(b.Description)
         );
         setCategories(joinCategories);
 
         if (isEditing && props.campaignToEdit?.CampaignCategory) {
           const selectedCategory = joinCategories.find(
-            (cat: Category) => cat.Description === props.campaignToEdit!.CampaignCategory
+            (cat: Category) =>
+              cat.Description === props.campaignToEdit!.CampaignCategory
           );
           if (selectedCategory) {
             setCurrentInfoHead((prev) => ({
@@ -492,19 +534,22 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
     if (isEditing && props.campaignToEdit?.AdvertiserID) {
       const fetchHeadDetails = async () => {
         try {
-          const data = await getHeadByAdvertiserID(props.campaignToEdit.AdvertiserID);
+          const data = await getHeadByAdvertiserID(
+            props.campaignToEdit.AdvertiserID
+          );
           const sortedHeads = data.result.sort((a: CampaignHead, b: CampaignHead) =>
-            a.CampaignHead.localeCompare(b.CampaignHead),
+            a.CampaignHead.localeCompare(b.CampaignHead)
           );
           setHeads(sortedHeads);
 
           if (props.campaignToEdit?.CampaignHeadID) {
             const head = sortedHeads.find(
-              (h: CampaignHead) => h.CampaignHeadID === props.campaignToEdit!.CampaignHeadID,
+              (h: CampaignHead) =>
+                h.CampaignHeadID === props.campaignToEdit!.CampaignHeadID
             );
             if (head) {
               const selectedCampaignType = listCampaignType.find(
-                (ct) => ct.CampaignTypeID === head.CampaignTypeID,
+                (ct) => ct.CampaignTypeID === head.CampaignTypeID
               );
               setCurrentInfoHead((prev) => ({
                 ...prev,
@@ -536,12 +581,13 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
       const data = await getHeadByAdvertiserID(advertiserId);
       setHeads(
         data.result.sort((a: CampaignHead, b: CampaignHead) =>
-          a.CampaignHead.localeCompare(b.CampaignHead),
-        ),
+          a.CampaignHead.localeCompare(b.CampaignHead)
+        )
       );
       if (isEditing && props.campaignToEdit?.CampaignHeadID) {
         const head = data.result.find(
-          (h: CampaignHead) => h.CampaignHeadID === props.campaignToEdit!.CampaignHeadID,
+          (h: CampaignHead) =>
+            h.CampaignHeadID === props.campaignToEdit!.CampaignHeadID
         );
         if (head) {
           handleHeadChange({ target: { value: head.CampaignHeadID.toString() } } as any);
@@ -559,7 +605,7 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
 
     if (selectedHead) {
       const selectedCampaignType = listCampaignType.find(
-        (ct) => ct.CampaignTypeID === selectedHead.CampaignTypeID,
+        (ct) => ct.CampaignTypeID === selectedHead.CampaignTypeID
       );
 
       setCurrentInfoHead((prev) => ({
@@ -609,7 +655,9 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | any,
+    e:
+      | React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+      | any
   ) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
@@ -666,7 +714,9 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
   };
 
   const handleCampaignInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | any,
+    e:
+      | React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+      | any
   ) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
@@ -800,21 +850,25 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2, mb: 3 }}>
           Here you can {isEditing ? "edit the selected campaign" : "create a new campaign"}. Complete the details below.
         </Typography>
+
         <Button
           variant="text"
           color="primary"
           onClick={props.onClose}
-          sx={{ mb: 3, display: 'flex', alignItems: 'center' }}
+          sx={{ mb: 3, display: "flex", alignItems: "center" }}
         >
           ← Back
         </Button>
+
         <StyledForm>
-          <Button onClick={props.onClose} sx={{ display: 'none' }}>Close</Button>
+          <Button onClick={props.onClose} sx={{ display: "none" }}>
+            Close
+          </Button>
 
           <SearchableSelect
             options={advertisers.map((advertiser) => ({
               value: advertiser.AdvertiserID.toString(),
-              label: advertiser.Advertiser
+              label: advertiser.Advertiser,
             }))}
             value={currentInfoHead.AdvertiserID.toString()}
             onChange={(value) => handleChangeHeadsList({ target: { value } } as any)}
@@ -829,7 +883,7 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
           <SearchableSelect
             options={heads.map((item) => ({
               value: item.CampaignHeadID.toString(),
-              label: item.CampaignHead
+              label: item.CampaignHead,
             }))}
             value={currentInfoHead.CampaignHeadID.toString()}
             onChange={(value) => handleHeadChange({ target: { value } } as any)}
@@ -857,10 +911,12 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
           <SearchableSelect
             options={listCampaignType.map((item) => ({
               value: item.CampaignTypeID,
-              label: item.CampaignType
+              label: item.CampaignType,
             }))}
             value={currentInfoHead.CampaignTypeID}
-            onChange={(value) => handleInputChange({ target: { name: "CampaignTypeID", value } } as any)}
+            onChange={(value) =>
+              handleInputChange({ target: { name: "CampaignTypeID", value } } as any)
+            }
             placeholder="Search campaign types..."
             label="Head Type"
             fullWidth
@@ -873,15 +929,21 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
             options={[
               ...categories.map((category) => ({
                 value: category.TypeID,
-                label: category.Description
+                label: category.Description,
               })),
-              ...(currentInfoHead.CampaignCategory ? [{
-                value: currentInfoHead.CampaignCategoryID,
-                label: currentInfoHead.CampaignCategory
-              }] : [])
+              ...(currentInfoHead.CampaignCategory
+                ? [
+                    {
+                      value: currentInfoHead.CampaignCategoryID,
+                      label: currentInfoHead.CampaignCategory,
+                    },
+                  ]
+                : []),
             ]}
             value={currentInfoHead.CampaignCategoryID || currentInfoHead.CampaignCategory}
-            onChange={(value) => handleInputChange({ target: { name: "CampaignCategory", value } } as any)}
+            onChange={(value) =>
+              handleInputChange({ target: { name: "CampaignCategory", value } } as any)
+            }
             placeholder="Search categories..."
             label="Categories"
             fullWidth
@@ -914,11 +976,11 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
           />
 
           {currentInfoHead.Icon72 && (
-            <Box sx={{ mb: 3, textAlign: 'center' }}>
+            <Box sx={{ mb: 3, textAlign: "center" }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                 Icon Preview
               </Typography>
-              {/^https?:\/\//.test(currentInfoHead.Icon72) ? (
+              {/^^https?:\/\//.test(currentInfoHead.Icon72) ? (
                 <Image
                   src={currentInfoHead.Icon72}
                   alt="Icon Preview"
@@ -1026,6 +1088,7 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 <Typography variant="body2" color="text.secondary">
                   Countries
                 </Typography>
+
                 <Select
                   isMulti
                   options={countries.map((country) => ({
@@ -1068,21 +1131,6 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                   className="basic-multi-select"
                   classNamePrefix="select"
                   placeholder="Select countries..."
-                  styles={{
-                    control: (base) => ({
-                      ...base,
-                      borderColor: '#d1d5db',
-                      boxShadow: 'none',
-                      '&:hover': { borderColor: '#93c5fd' },
-                      backgroundColor: '#fff',
-                      dark: { backgroundColor: '#4b5563' },
-                    }),
-                    menu: (base) => ({
-                      ...base,
-                      backgroundColor: '#fff',
-                      dark: { backgroundColor: '#4b5563' },
-                    }),
-                  }}
                 />
               </Box>
 
@@ -1123,21 +1171,6 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                       className="basic-multi-select"
                       classNamePrefix="select"
                       placeholder="Select regions..."
-                      styles={{
-                        control: (base) => ({
-                          ...base,
-                          borderColor: '#d1d5db',
-                          boxShadow: 'none',
-                          '&:hover': { borderColor: '#93c5fd' },
-                          backgroundColor: '#fff',
-                          dark: { backgroundColor: '#4b5563' },
-                        }),
-                        menu: (base) => ({
-                          ...base,
-                          backgroundColor: '#fff',
-                          dark: { backgroundColor: '#4b5563' },
-                        }),
-                      }}
                     />
                     <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
                       You can select multiple regions.
@@ -1148,15 +1181,19 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
               <SearchableSelect
                 options={Array.isArray(listDevice) ? listDevice.map((item) => ({
                   value: item.Device,
-                  label: item.Device
+                  label: item.Device,
                 })) : []}
                 value={currentInfo.Device}
-                onChange={(value) => handleCampaignInputChange({ target: { name: "Device", value } } as any)}
+                onChange={(value) =>
+                  handleCampaignInputChange({ target: { name: "Device", value } } as any)
+                }
                 placeholder="Search devices..."
                 label="Device"
                 fullWidth
                 clearable
-                onClear={() => handleCampaignInputChange({ target: { name: "Device", value: "" } } as any)}
+                onClear={() =>
+                  handleCampaignInputChange({ target: { name: "Device", value: "" } } as any)
+                }
               />
 
               <TextField
@@ -1168,7 +1205,6 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 value={currentInfo.Revenue === 0 ? "" : currentInfo.Revenue.toString()}
                 onChange={(e) => {
                   const val = e.target.value;
-                  // Allow empty, numbers, and decimal point/comma
                   if (val === "" || /^[0-9]*[.,]?[0-9]*$/.test(val)) {
                     handleNumericCampaignInputChange(e, "Revenue");
                   }
@@ -1178,7 +1214,6 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                   if (val === "" || val === "0" || val === "." || val === ",") {
                     setCurrentInfo((prev) => ({ ...prev, Revenue: 0 }));
                   } else {
-                    // Ensure the value is properly set as a number
                     const normalized = val.replace(",", ".");
                     const numVal = Number(normalized);
                     if (!isNaN(numVal)) {
@@ -1197,9 +1232,10 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 name="eventPayOut1"
                 type="text"
                 value={currentInfo.eventPayOut1 === 0 ? "" : currentInfo.eventPayOut1.toString()}
+                disabled={!isEventType}
+                helperText={!isEventType ? "Only enabled for CPA-Events (CP2)" : " "}
                 onChange={(e) => {
                   const val = e.target.value;
-                  // Allow empty, numbers, and decimal point/comma
                   if (val === "" || /^[0-9]*[.,]?[0-9]*$/.test(val)) {
                     handleNumericCampaignInputChange(e, "eventPayOut1");
                   }
@@ -1209,7 +1245,6 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                   if (val === "" || val === "0" || val === "." || val === ",") {
                     setCurrentInfo((prev) => ({ ...prev, eventPayOut1: 0 }));
                   } else {
-                    // Ensure the value is properly set as a number
                     const normalized = val.replace(",", ".");
                     const numVal = Number(normalized);
                     if (!isNaN(numVal)) {
@@ -1237,6 +1272,8 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 label="Event Name 1"
                 name="eventsName1"
                 value={currentInfo.eventsName1}
+                disabled={!isEventType}
+                helperText={!isEventType ? "Only enabled for CPA-Events (CP2)" : " "}
                 onChange={handleCampaignInputChange}
                 sx={{ mb: 3 }}
               />
@@ -1250,7 +1287,6 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 value={currentInfo.DailyQuantityClick === 0 ? "" : currentInfo.DailyQuantityClick.toString()}
                 onChange={(e) => {
                   const val = e.target.value;
-                  // Allow empty, numbers, and decimal point/comma
                   if (val === "" || /^[0-9]*[.,]?[0-9]*$/.test(val)) {
                     handleNumericCampaignInputChange(e, "DailyQuantityClick");
                   }
@@ -1260,7 +1296,6 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                   if (val === "" || val === "0" || val === "." || val === ",") {
                     setCurrentInfo((prev) => ({ ...prev, DailyQuantityClick: 0 }));
                   } else {
-                    // Ensure the value is properly set as a number
                     const normalized = val.replace(",", ".");
                     const numVal = Number(normalized);
                     if (!isNaN(numVal)) {
@@ -1281,7 +1316,6 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 value={currentInfo.DailyQuantity === 0 ? "" : currentInfo.DailyQuantity.toString()}
                 onChange={(e) => {
                   const val = e.target.value;
-                  // Allow empty, numbers, and decimal point/comma
                   if (val === "" || /^[0-9]*[.,]?[0-9]*$/.test(val)) {
                     handleNumericCampaignInputChange(e, "DailyQuantity");
                   }
@@ -1291,7 +1325,6 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                   if (val === "" || val === "0" || val === "." || val === ",") {
                     setCurrentInfo((prev) => ({ ...prev, DailyQuantity: 0 }));
                   } else {
-                    // Ensure the value is properly set as a number
                     const normalized = val.replace(",", ".");
                     const numVal = Number(normalized);
                     if (!isNaN(numVal)) {
@@ -1323,7 +1356,9 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                   Publisher
                 </Button>
               </StyledMacroButtons>
-              <Box sx={{ my: 2 }}></Box> {/* Added a Box for spacing */}
+
+              <Box sx={{ my: 2 }} />
+
               <TextField
                 fullWidth
                 variant="outlined"
@@ -1364,29 +1399,39 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
           )}
 
           {flagCreatedHead && (
-            <Box sx={{ mt: 3, pt: 3, borderTop: 1, borderColor: 'divider' }}>
+            <Box sx={{ mt: 3, pt: 3, borderTop: 1, borderColor: "divider" }}>
               {showSuccessAlert && (
-                <Box sx={{ mb: 3, p: 2, backgroundColor: 'success.light', color: 'success.main', borderRadius: 1 }}>
+                <Box
+                  sx={{
+                    mb: 3,
+                    p: 2,
+                    backgroundColor: "success.light",
+                    color: "success.main",
+                    borderRadius: 1,
+                  }}
+                >
                   Campaign {isEditing ? "updated" : "created"} successfully!
                 </Box>
               )}
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <Button
                   variant="contained"
                   color="primary"
                   onClick={submitForm}
                   disabled={isSubmitting}
-                  startIcon={isSubmitting ? <span className="animate-spin h-5 w-5 border-4 border-t-transparent border-white rounded-full"></span> : null}
+                  startIcon={
+                    isSubmitting ? (
+                      <span className="animate-spin h-5 w-5 border-4 border-t-transparent border-white rounded-full"></span>
+                    ) : null
+                  }
                 >
                   {isSubmitting ? "Saving..." : isEditing ? "Update Campaign" : "Create Campaign"}
                 </Button>
               </Box>
-              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  onClick={props.onClose}
-                >
+
+              <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+                <Button variant="outlined" color="secondary" onClick={props.onClose}>
                   Close
                 </Button>
               </Box>
