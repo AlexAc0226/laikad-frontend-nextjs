@@ -277,6 +277,7 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
   const [regionsList, setRegionsList] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState<boolean>(false);
+  const [trackingLinkError, setTrackingLinkError] = useState<string>("");
 
   const trackingLinkRef = useRef<HTMLTextAreaElement>(null);
 
@@ -391,6 +392,11 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
     return typeId === "CP2" || typeId === "CPA-Events" || typeLabel === "CPA-Events";
   }, [currentInfoHead.CampaignTypeID, currentInfoHead.CampaignType]);
 
+  // ✅ Función para validar que el Tracking Link contenga {trace_id}
+  const validateTrackingLink = (url: string): boolean => {
+    return url.includes("{trace_id}");
+  };
+
   useEffect(() => {
     if (!isEventType) {
       // Si NO es CP2, limpiar campos de eventos
@@ -407,6 +413,19 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
       }));
     }
   }, [isEventType]);
+
+  // ✅ Validar Tracking Link cuando cambia o se carga la campaña
+  useEffect(() => {
+    if (currentInfo.URL) {
+      if (!validateTrackingLink(currentInfo.URL)) {
+        setTrackingLinkError("El Tracking Link debe contener obligatoriamente {trace_id}");
+      } else {
+        setTrackingLinkError("");
+      }
+    } else {
+      setTrackingLinkError("El Tracking Link debe contener obligatoriamente {trace_id}");
+    }
+  }, [currentInfo.URL]);
 
   const listDevice: Device[] = [
     { Device: "AOS", DeviceID: "AOS" },
@@ -741,6 +760,15 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
         [name]: type === "number" ? Number(value) : value,
       }));
     }
+
+    // Validar Tracking Link en tiempo real
+    if (name === "URL") {
+      if (value && !validateTrackingLink(value)) {
+        setTrackingLinkError("El Tracking Link debe contener obligatoriamente {trace_id}");
+      } else {
+        setTrackingLinkError("");
+      }
+    }
   };
 
   // Helper function to handle numeric input with decimal support and empty value handling
@@ -777,8 +805,15 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
   };
 
   const submitForm = async () => {
+    // Validar que el Tracking Link contenga {trace_id}
+    if (!validateTrackingLink(currentInfo.URL)) {
+      setTrackingLinkError("El Tracking Link debe contener obligatoriamente {trace_id}");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
+      setTrackingLinkError(""); // Limpiar error si la validación pasa
       const formattedRegions = selectedRegions.map((region) => ({
         code: region.countryCityID?.toString() || "",
         RegionName: region.RegionName || "",
@@ -1376,6 +1411,8 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 multiline
                 rows={3}
                 inputRef={trackingLinkRef}
+                error={!!trackingLinkError}
+                helperText={trackingLinkError || "El Tracking Link debe contener {trace_id}"}
                 sx={{ mb: 3 }}
               />
 
@@ -1426,7 +1463,7 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                   variant="contained"
                   color="primary"
                   onClick={submitForm}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !validateTrackingLink(currentInfo.URL)}
                   startIcon={
                     isSubmitting ? (
                       <span className="animate-spin h-5 w-5 border-4 border-t-transparent border-white rounded-full"></span>
