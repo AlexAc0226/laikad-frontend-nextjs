@@ -385,20 +385,25 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
     CampaignHead: "",
   });
 
-  // ✅ Solo habilitar campos de evento si el Head Type es CP2 / CPA-Events
   const isEventType = React.useMemo(() => {
     const typeId = (currentInfoHead.CampaignTypeID || "").toString().trim();
     const typeLabel = (currentInfoHead.CampaignType || "").toString().trim();
     return typeId === "CP2" || typeId === "CPA-Events" || typeLabel === "CPA-Events";
   }, [currentInfoHead.CampaignTypeID, currentInfoHead.CampaignType]);
 
-  // ✅ Limpiar valores si no es EventType (evita enviar valores viejos al backend)
   useEffect(() => {
     if (!isEventType) {
+      // Si NO es CP2, limpiar campos de eventos
       setCurrentInfo((prev) => ({
         ...prev,
         eventPayOut1: 0,
         eventsName1: "",
+      }));
+    } else {
+      // Si ES CP2, limpiar campo de Revenue (PayOut - Install)
+      setCurrentInfo((prev) => ({
+        ...prev,
+        Revenue: 0,
       }));
     }
   }, [isEventType]);
@@ -1203,6 +1208,8 @@ const CreateCampaigns: React.FC<CreateCampaignsProps> = (props) => {
                 name="Revenue"
                 type="text"
                 value={currentInfo.Revenue === 0 ? "" : currentInfo.Revenue.toString()}
+                disabled={isEventType}
+                helperText={isEventType ? "Disabled for CPA-Events (CP2) - use PayOut - Event instead" : " "}
                 onChange={(e) => {
                   const val = e.target.value;
                   if (val === "" || /^[0-9]*[.,]?[0-9]*$/.test(val)) {
