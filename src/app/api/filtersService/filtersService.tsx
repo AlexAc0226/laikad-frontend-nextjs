@@ -1,76 +1,86 @@
-import apiClient from '@/libs/axiosConfig';
+import apiClient from "@/libs/axiosConfig";
+
+/**
+ * ✅ Fix PROD:
+ * - Evita parseInt(null) => NaN
+ * - Evita enviar AccountManager= (vacío) o AccountManager=null
+ * - Para admins => AccountManager=0
+ * - Si falta UserID (muy común en prod por dominio/origin) => fallback AccountManager=0
+ */
+const ADMIN_IDS = [2, 4, 55, 160, 194, 242, 279, 281, 282, 283, 284, 303, 322, 350, 368, 371, 372];
+
+const getAccountManagerParam = () => {
+  const rawUserId = localStorage.getItem("UserID");
+  const userId = Number(rawUserId ?? 0);
+  const isAdmin = ADMIN_IDS.includes(userId);
+
+  // ✅ Admin o UserID faltante => 0 (trae todos / evita lista vacía)
+  if (isAdmin || !userId) return "AccountManager=0";
+
+  return `AccountManager=${userId}`;
+};
+
+const getAccessToken = () => localStorage.getItem("accessToken") ?? "";
 
 // Obtener datos de Suppliers
 export const getSuppliers = async () => {
-  let params = "";
-  const localUserID = localStorage.getItem("UserID");
-  let accountManager = "";
+  const params = getAccountManagerParam();
 
-  let admins = [2, 4, 55, 160, 194, 242, 279, 281, 282, 283, 284, 303, 322, 350, 368, 371, 372].filter((item) => item == parseInt(localUserID));
-  if (admins.length >= 1) accountManager = "AccountManager=0";
-  else accountManager = "AccountManager=" + localUserID;
-
-  params = accountManager;
   try {
     const response = await apiClient.get(`/suppliers?${params}`, {
       headers: {
-        'Access-Token': localStorage.getItem('accessToken'),
+        "Access-Token": getAccessToken(),
       },
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching suppliers:', error);
+    console.error("Error fetching suppliers:", error);
     throw error;
   }
 };
 
 // Obtener datos de Advertisers
 export const getAdvertisers = async () => {
-  let params = "";
-  const localUserID = localStorage.getItem("UserID");
-  let accountManager = "";
-
-  let admins = [2, 4, 55, 160, 194, 242, 279, 281, 282, 283, 284, 303, 322, 350, 368, 371, 372].filter((item) => item == parseInt(localUserID));
-  if (admins.length >= 1) accountManager = "AccountManager=" + "";
-  else accountManager = "AccountManager=" + localUserID;
-
-  params = accountManager;
+  const params = getAccountManagerParam();
 
   try {
     const response = await apiClient.get(`/advertisers?${params}`, {
       headers: {
-        'Access-Token': localStorage.getItem('accessToken'),
+        "Access-Token": getAccessToken(),
       },
     });
 
     return response.data;
   } catch (error) {
-    console.error('Error fetching advertisers:', error);
+    console.error("Error fetching advertisers:", error);
     throw error;
   }
 };
 
 export const getManagers = async () => {
   try {
-    const response = await apiClient.get('/users/managers', {
+    const response = await apiClient.get("/users/managers", {
       headers: {
-        'Access-Token': localStorage.getItem('accessToken'),
+        "Access-Token": getAccessToken(),
       },
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching managers:', error);
+    console.error("Error fetching managers:", error);
     throw error;
   }
 };
 
 export const getContacts = async (advertiserID: number) => {
   try {
-    const response = await apiClient.get(`/contacts?SupplierID=0&AdvertiserID=${advertiserID}`, {
-      headers: {
-        "Access-Token": localStorage.getItem("accessToken"),
-      },
-    });
+    const response = await apiClient.get(
+      `/contacts?SupplierID=0&AdvertiserID=${advertiserID}`,
+      {
+        headers: {
+          "Access-Token": getAccessToken(),
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Error fetching contacts:", error);
@@ -82,7 +92,7 @@ export const getUserPassword = async (email: string) => {
   try {
     const response = await apiClient.get(`/users/viewPasswordUser?EMail=${email}`, {
       headers: {
-        'Access-Token': localStorage.getItem('accessToken'),
+        "Access-Token": getAccessToken(),
       },
     });
     return response.data;
@@ -95,10 +105,10 @@ export const getUserPassword = async (email: string) => {
 export const changeUserPassword = async (email: string, newPassword: string) => {
   try {
     const body = { email: email, password: newPassword };
-    const response = await apiClient.put('/auth/changepassword2', body, {
+    const response = await apiClient.put("/auth/changepassword2", body, {
       headers: {
-        'Access-Token': localStorage.getItem('accessToken'),
-        'Content-Type': 'application/json'
+        "Access-Token": getAccessToken(),
+        "Content-Type": "application/json",
       },
     });
     return response.data;
@@ -114,7 +124,7 @@ export const getCampaignHeads = async (advertiserID: string) => {
       `/campaignshead?CampaignHeadID=&AdvertiserID=${advertiserID}&StatusID=&consultaAll=0`,
       {
         headers: {
-          "Access-Token": localStorage.getItem("accessToken"),
+          "Access-Token": getAccessToken(),
         },
       }
     );
@@ -130,9 +140,8 @@ export const getCampaignById = async (campaignId: number) => {
     const response = await apiClient.get(
       `https://api.laikad.com/api/campaignshead?CampaignHeadID=${campaignId}&AdvertiserID=&StatusID=&consultaAll=1`,
       {
-      
         headers: {
-          "Access-Token": localStorage.getItem("accessToken"),
+          "Access-Token": getAccessToken(),
         },
       }
     );
@@ -145,14 +154,11 @@ export const getCampaignById = async (campaignId: number) => {
 
 export const getCampaignCategories = async () => {
   try {
-    const response = await apiClient.get(
-      "/campaignshead/categories-head?",
-      {
-        headers: {
-          "Access-Token": localStorage.getItem("accessToken"),
-        },
-      }
-    );
+    const response = await apiClient.get("/campaignshead/categories-head?", {
+      headers: {
+        "Access-Token": getAccessToken(),
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching campaign categories:", error);
@@ -160,8 +166,7 @@ export const getCampaignCategories = async () => {
   }
 };
 
-export const getTrackingData = async (dateFrom, dateTo, offerID) => {
- 
+export const getTrackingData = async (dateFrom: string, dateTo: string, offerID: string | number) => {
   const formattedDateFrom = dateFrom.replace(/-/g, "");
   const formattedDateTo = dateTo.replace(/-/g, "");
 
@@ -170,7 +175,7 @@ export const getTrackingData = async (dateFrom, dateTo, offerID) => {
       `/reports/tracking?datefrom=${formattedDateFrom}&dateto=${formattedDateTo}&OfferID=${offerID}`,
       {
         headers: {
-          "Access-Token": localStorage.getItem("accessToken"),
+          "Access-Token": getAccessToken(),
         },
       }
     );
@@ -187,7 +192,7 @@ export const getRequestsBySupplier = async (supplierID: number) => {
       `https://api.laikad.com/api/pub/v2.0/request-by-supplier?SupplierID=${supplierID}`,
       {
         headers: {
-          "Access-Token": localStorage.getItem("accessToken"),
+          "Access-Token": getAccessToken(),
         },
       }
     );
@@ -204,7 +209,7 @@ export const getSuppliersFromAPI = async () => {
       "https://api.laikad.com/api/pub/v2.0/list-suppliers-request",
       {
         headers: {
-          "Access-Token": localStorage.getItem("accessToken"),
+          "Access-Token": getAccessToken(),
         },
       }
     );
@@ -215,8 +220,7 @@ export const getSuppliersFromAPI = async () => {
   }
 };
 
-export const getTotalOffers = async (dateFrom, dateTo, filter = "CUSTOM") => {
-  
+export const getTotalOffers = async (dateFrom: string, dateTo: string, filter = "CUSTOM") => {
   const formattedDateFrom = dateFrom.replace(/-/g, "");
   const formattedDateTo = dateTo.replace(/-/g, "");
 
@@ -225,7 +229,7 @@ export const getTotalOffers = async (dateFrom, dateTo, filter = "CUSTOM") => {
       `/suppliers/portal/totaloffers?DateFrom=${formattedDateFrom}&DateTo=${formattedDateTo}&filter=${filter}`,
       {
         headers: {
-          "Access-Token": localStorage.getItem("accessToken"),
+          "Access-Token": getAccessToken(),
         },
       }
     );
@@ -241,13 +245,12 @@ export const getCampaigns = async (status = "") => {
     `https://api.laikad.com/api/suppliers/portal/campaigns?StatusID=${status}&Campaign=&OfferID=&CampaignID=&CampaignTypeID=&Category=&Device=&Countrys=`,
     {
       headers: {
-        'Access-Token': localStorage.getItem('accessToken'),
+        "Access-Token": getAccessToken(),
       },
     }
   );
   return response.data;
 };
-
 
 export const getTotalOffersAdvertiser = async (dateFrom: string, dateTo: string, filter = "CUSTOM") => {
   const formattedFrom = dateFrom.replace(/-/g, "");
@@ -258,7 +261,7 @@ export const getTotalOffersAdvertiser = async (dateFrom: string, dateTo: string,
       `/advertisers/portal/totaloffers?DateFrom=${formattedFrom}&DateTo=${formattedTo}&filter=${filter}`,
       {
         headers: {
-          "Access-Token": localStorage.getItem("accessToken"),
+          "Access-Token": getAccessToken(),
         },
       }
     );
@@ -275,7 +278,7 @@ export const getCampaignsAdvertiser = async (status: string) => {
   try {
     const response = await apiClient.get(url, {
       headers: {
-        "Access-Token": localStorage.getItem("accessToken"),
+        "Access-Token": getAccessToken(),
       },
     });
     return response.data;
@@ -287,9 +290,9 @@ export const getCampaignsAdvertiser = async (status: string) => {
 
 export const getDashboardChartData = async () => {
   try {
-    const response = await apiClient.get('/charts/dashboard', {
+    const response = await apiClient.get("/charts/dashboard", {
       headers: {
-        'Access-Token': localStorage.getItem('accessToken'),
+        "Access-Token": getAccessToken(),
       },
     });
     return response.data;
@@ -301,12 +304,12 @@ export const getDashboardChartData = async () => {
 
 export const sendMailSupplier = async (offerIdsByEmail: string) => {
   try {
-    let params = `Offers=${offerIdsByEmail}&output=email`
-    const url = `/reports/offers?${params}`
-    
+    const params = `Offers=${offerIdsByEmail}&output=email`;
+    const url = `/reports/offers?${params}`;
+
     const response = await apiClient.get(url, {
       headers: {
-        "Access-Token": localStorage.getItem("accessToken"),
+        "Access-Token": getAccessToken(),
       },
     });
     return response.data;
@@ -314,4 +317,4 @@ export const sendMailSupplier = async (offerIdsByEmail: string) => {
     console.error("Error sending mail supplier:", error);
     throw error;
   }
-}
+};
