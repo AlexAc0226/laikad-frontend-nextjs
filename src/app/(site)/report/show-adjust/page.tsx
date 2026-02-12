@@ -1,14 +1,11 @@
-import { Metadata } from "next";
-
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
-import ShowAjust from "@/components/Reports/Adjust Report/Ajust";
+import ShowAdjust from "@/components/Reports/AdjustReport/Adjust";
 
-const ShowAjustPage = () => {
-  return (
-    <DefaultLayout>
-      <ShowAjust />
-    </DefaultLayout>
-  );
-};
 
-export default ShowAjustPage;
+const ShowAdjustPage = () => (
+  <DefaultLayout>
+    <ShowAdjust />
+  </DefaultLayout>
+);
+
+export default ShowAdjustPage;

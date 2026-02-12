@@ -42,9 +42,9 @@ const menuGroups = [
         label: 'Dashboard-Suppliers',
         route: '#',
         children: [
-          { label: 'Dashboard', route: '/dashboard/dashboardSuppliers', },
-          { label: 'Campaings', route: '/dashboard/dashboardCampaing',},
-          { label: 'Request Offer', route: '/dashboard/dashboardRequestOff', },
+          { label: 'Dashboard', route: '/dashboard/dashboardSuppliers' },
+          { label: 'Campaings', route: '/dashboard/dashboardCampaing' },
+          { label: 'Request Offer', route: '/dashboard/dashboardRequestOff' },
         ],
       },
       {
@@ -93,9 +93,8 @@ const menuGroups = [
         label: 'Dashboard-Advertiser',
         route: '#',
         children: [
-          { label: 'Dashboard', route: '/dashboard/dashboardAdvertiser', },
-          { label: 'Campaings', route: '/dashboard/dashboardAdvCampaing',},
-          
+          { label: 'Dashboard', route: '/dashboard/dashboardAdvertiser' },
+          { label: 'Campaings', route: '/dashboard/dashboardAdvCampaing' },
         ],
       },
       {
@@ -123,21 +122,9 @@ const menuGroups = [
         label: 'Publishers',
         route: '#',
         children: [
-          {
-            label: 'Show Publishers',
-            route: '/publisher/show-publishers',
-          
-          },
-          {
-            label: 'Offers',
-            route: '/offer/show-offers',
-          
-          },
-          {
-            label: 'Request Offers',
-            route: '/offer/show-request-offers',
-          
-          },
+          { label: 'Show Publishers', route: '/publisher/show-publishers' },
+          { label: 'Offers', route: '/offer/show-offers' },
+          { label: 'Request Offers', route: '/offer/show-request-offers' },
         ],
       },
       {
@@ -165,19 +152,11 @@ const menuGroups = [
         label: 'Advertisers',
         route: '#',
         children: [
-          {
-            label: 'Advertiser',
-            route: '/advertiser/show-advertisers',
-         
-          },
-          {
-            label: 'Campaigns',
-            route: '/campaign/show-campaigns',
-          
-          },
-         
+          { label: 'Advertiser', route: '/advertiser/show-advertisers' },
+          { label: 'Campaigns', route: '/campaign/show-campaigns' },
         ],
       },
+
       {
         icon: (
           <svg
@@ -211,20 +190,23 @@ const menuGroups = [
           {
             label: 'Reports',
             route: '/report/show-reports',
-           
           },
           {
             label: 'Rotador',
             route: '/report/show-rotador',
-         
           },
+          // ✅ NUEVO: Adjust
           {
             label: 'Adjust',
             route: '/report/show-adjust',
-         
+          },
+          {
+            label: 'Adjustment',
+            route: '/report/show-adjustment',
           },
         ],
       },
+
       {
         icon: (
           <svg
@@ -246,6 +228,7 @@ const menuGroups = [
         label: 'Blacklist',
         route: '/blacklist/show-blacklist',
       },
+
       {
         icon: (
           <svg
@@ -267,6 +250,7 @@ const menuGroups = [
         label: 'Cloud Save File',
         route: '/cloud-save-file',
       },
+
       {
         icon: (
           <svg
@@ -312,6 +296,7 @@ const menuGroups = [
         label: 'Calendar',
         route: '/calendar',
       },
+
       {
         icon: (
           <svg
@@ -339,6 +324,7 @@ const menuGroups = [
         label: 'Profile',
         route: '/profile',
       },
+
       {
         icon: (
           <svg
@@ -360,10 +346,11 @@ const menuGroups = [
         label: 'Tasks',
         route: '#',
         children: [
-          { label: 'List', route: '/tasks/task-list',},
-          { label: 'Kanban', route: '/tasks/task-kanban', },
+          { label: 'List', route: '/tasks/task-list' },
+          { label: 'Kanban', route: '/tasks/task-kanban' },
         ],
       },
+
       {
         icon: (
           <svg
@@ -386,19 +373,12 @@ const menuGroups = [
         route: '#',
         children: [
           { label: 'Form Elements', route: '/forms/form-elements' },
-          {
-            label: 'Pro Form Elements',
-            route: '/forms/pro-form-elements',
-          
-          },
+          { label: 'Pro Form Elements', route: '/forms/pro-form-elements' },
           { label: 'Form Layout', route: '/forms/form-layout' },
-          {
-            label: 'Pro Form Layout',
-            route: '/forms/pro-form-layout',
-           
-          },
+          { label: 'Pro Form Layout', route: '/forms/pro-form-layout' },
         ],
       },
+
       {
         icon: (
           <svg
@@ -421,13 +401,10 @@ const menuGroups = [
         route: '#',
         children: [
           { label: 'Tables', route: '/tables' },
-          {
-            label: 'Pro Tables',
-            route: '/tables/pro-tables',
-            
-          },
+          { label: 'Pro Tables', route: '/tables/pro-tables' },
         ],
       },
+
       {
         icon: (
           <svg
@@ -450,21 +427,13 @@ const menuGroups = [
         route: '#',
         children: [
           { label: 'Settings', route: '/pages/settings' },
-          { label: 'File Manager', route: '/pages/file-manager', },
-          { label: 'Data Tables', route: '/pages/data-tables', },
-          {
-            label: 'Pricing Tables',
-            route: '/pages/pricing-tables',
-            
-          },
-          { label: 'Error Page', route: '/pages/error-page',},
-          { label: 'Teams', route: '/pages/team',  },
-          {
-            label: 'Terms & Conditions',
-            route: '/pages/terms-conditions',
-          
-          },
-          { label: 'Mail Success', route: '/pages/mail-success', },
+          { label: 'File Manager', route: '/pages/file-manager' },
+          { label: 'Data Tables', route: '/pages/data-tables' },
+          { label: 'Pricing Tables', route: '/pages/pricing-tables' },
+          { label: 'Error Page', route: '/pages/error-page' },
+          { label: 'Teams', route: '/pages/team' },
+          { label: 'Terms & Conditions', route: '/pages/terms-conditions' },
+          { label: 'Mail Success', route: '/pages/mail-success' },
         ],
       },
     ],
@@ -481,8 +450,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const pathname = usePathname();
   const [pageName, setPageName] = useLocalStorage('selectedMenu', 'dashboard');
 
-  // Obtenemos el roleId del usuario
-  const roleIdUser = localStorage.getItem('RoleID');
+  // ✅ FIX: Evitar error en SSR / primera render
+  const roleIdUser = typeof window !== 'undefined' ? localStorage.getItem('RoleID') : null;
 
   const labelAccess: { [label: string]: string[] } = {
     'Dashboard-Suppliers': ['8'],
@@ -503,7 +472,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     'Authentication': ['', '2', '3', '7', '8', '9'],
     'Test Link': ['9'],
   };
-  
+
   const routeAccess: { [route: string]: string[] } = {
     '/advertiser/show-advertisers': ['2', '3', '9'],
     '/campaign/show-campaigns': ['2', '3', '9'],
@@ -512,6 +481,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     '/offer/show-offers': ['2', '3', '9'],
     '/report/show-reports': ['2', '3', '9'],
     '/report/show-rotador': ['3', '9'],
+    '/report/show-adjustment': ['3', '9'],
+    // ✅ NUEVO: permisos Adjust
     '/report/show-adjust': ['3', '9'],
     '/auth/signin': ['', '2', '3', '7', '8', '9'],
     '/dashboard/dashboardSuppliers': ['8'],
@@ -522,23 +493,22 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     '/test-link': ['9'],
   };
 
-  const canAccessItem = (label: string, route: string, roleId: string | null, children?: { label: string; route: string }[]) => {
-    // Check parent label first: if restricted, hide entire item including children
-    if (labelAccess[label] && !labelAccess[label].includes(roleId || '')) {
-      return false;
-    }
-    // If label is allowed or not defined, check children for accessibility
+  const canAccessItem = (
+    label: string,
+    route: string,
+    roleId: string | null,
+    children?: { label: string; route: string }[]
+  ) => {
+    if (labelAccess[label] && !labelAccess[label].includes(roleId || '')) return false;
+
     if (children && children.length > 0) {
       return children.some(child => routeAccess[child.route]?.includes(roleId || ''));
     }
-    // For non-dropdown items, check route if defined
-    if (routeAccess[route]) {
-      return routeAccess[route].includes(roleId || '');
-    }
-    // Default to allow if no specific restrictions
+
+    if (routeAccess[route]) return routeAccess[route].includes(roleId || '');
+
     return true;
   };
-  
 
   return (
     <ClickOutside onClick={() => setSidebarOpen(false)}>
@@ -554,27 +524,28 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         {/* SIDEBAR HEADER */}
         <div className="flex items-center justify-between gap-2 px-6 py-0">
           <Link href="/" className="flex items-center">
-  {/* Mini (rail) */}
-  <Image
-    src="/images/logo/image.png"
-    alt="Laikad mini"
-    width={36}
-    height={36}
-    priority
-    className="block lg:group-hover:hidden"
-    style={{ objectFit: 'contain', height: 'auto' }}
-  />
-  {/* Expandido (solo al hover en desktop) */}
-  <Image
-    src="/images/logo/image.png"
-    alt="Laikad full"
-    width={176}
-    height={32}
-    priority
-    className="hidden lg:group-hover:block"
-    style={{ objectFit: 'contain', height: 'auto' }}
-  />
-</Link>
+            {/* Mini (rail) */}
+            <Image
+              src="/images/logo/image.png"
+              alt="Laikad mini"
+              width={36}
+              height={36}
+              priority
+              className="block lg:group-hover:hidden"
+              style={{ objectFit: 'contain', height: 'auto' }}
+            />
+            {/* Expandido (solo al hover en desktop) */}
+            <Image
+              src="/images/logo/image.png"
+              alt="Laikad full"
+              width={176}
+              height={32}
+              priority
+              className="hidden lg:group-hover:block"
+              style={{ objectFit: 'contain', height: 'auto' }}
+            />
+          </Link>
+
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="block lg:hidden">
             <svg
               className="fill-current"
@@ -599,31 +570,29 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             {menuGroups.map((group, groupIndex) => (
               <div key={groupIndex}>
                 <h3 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6 lg:hidden lg:group-hover:block">
-                  {/* ADDED: oculto título en rail mini, aparece al hover */}
                   {group.name}
                 </h3>
+
                 <ul className="mb-6 flex flex-col gap-2">
                   {group.menuItems
                     .filter(menuItem => {
-                      // Filter children based on route access
                       const accessibleChildren = menuItem.children?.filter(child =>
                         routeAccess[child.route]?.includes(roleIdUser || '')
                       );
-                      // Check parent label and children accessibility
+
                       return canAccessItem(menuItem.label, menuItem.route, roleIdUser, accessibleChildren);
                     })
                     .map((menuItem, menuIndex) => {
-                      // Filter children for rendering
                       const accessibleChildren = menuItem.children?.filter(child =>
                         routeAccess[child.route]?.includes(roleIdUser || '')
                       );
+
                       return (
                         <SidebarItem
                           key={menuIndex}
                           item={{ ...menuItem, children: accessibleChildren }}
                           pageName={pageName}
                           setPageName={setPageName}
-                          /* ADDED: colapsar texto/chevron en rail mini y mostrarlos al hover */
                           collapsedClassNames="lg:opacity-0 lg:group-hover:opacity-100 lg:max-w-0 lg:group-hover:max-w-full lg:transition-all"
                         />
                       );
@@ -638,6 +607,5 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     </ClickOutside>
   );
 };
-
 
 export default Sidebar;
