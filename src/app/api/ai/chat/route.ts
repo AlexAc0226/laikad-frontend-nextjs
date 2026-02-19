@@ -3,12 +3,22 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+function getOpenAI(): OpenAI | null {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey?.trim()) return null;
+  return new OpenAI({ apiKey });
+}
 
 export async function POST(req: Request) {
   try {
+    const openai = getOpenAI();
+    if (!openai) {
+      return NextResponse.json(
+        { error: "OpenAI API key not configured (OPENAI_API_KEY)" },
+        { status: 503 }
+      );
+    }
+
     // ✅ Validación estilo Laikad: token por header (desde localStorage)
     const authHeader = req.headers.get("authorization") || "";
     const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;

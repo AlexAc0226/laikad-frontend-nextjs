@@ -346,6 +346,8 @@ const ShowOffers: React.FC = () => {
       };
     });
     setOfferForms(newOfferForms);
+    // offerForms se usa solo para reutilizar datos existentes; no lo añadimos a deps para evitar bucle
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSupplierCampaigns, selectedSupplier, suppliers, allCampaigns]);
 
   const handleCampaignSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
