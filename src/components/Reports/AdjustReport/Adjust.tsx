@@ -2,16 +2,17 @@
 
 import { useMemo, useState } from "react";
 import { FaFileExcel, FaSync } from "react-icons/fa";
+import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { getAdjustFullReport } from "@/app/api/report/service";
 
 type AdjustRow = {
-  // ✅ ahora puede venir en dayAndapp
   key?: string;
 
   day: string;
   app: string;
-  app_token: string;
+  app_token?: string;
+
   country: string;
   country_code: string;
   network: string;
@@ -19,8 +20,8 @@ type AdjustRow = {
   channel: string;
   campaign: string;
 
-  installs: number;
-  clicks: number;
+  installs: number | string;
+  clicks: number | string;
 
   impressions: string | number;
   events: string | number;
@@ -30,18 +31,29 @@ type AdjustRow = {
   network_clicks: string | number;
   network_cost: string | number;
 
+  purchase_events?: string | number;
+  purchase_revenue?: string | number;
+  purchase_average_revenue_per_event?: string | number;
+  sign_up_events?: string | number;
+
   [key: string]: any;
 };
 
 type AdjustTotals = {
-  installs?: number;
-  clicks?: number;
-  impressions?: number;
-  events?: number;
-  cost?: number;
-  network_installs?: number;
-  network_clicks?: number;
-  network_cost?: number;
+  installs?: number | string;
+  clicks?: number | string;
+  impressions?: number | string;
+  events?: number | string;
+  cost?: number | string;
+  network_installs?: number | string;
+  network_clicks?: number | string;
+  network_cost?: number | string;
+
+  purchase_events?: number | string;
+  purchase_revenue?: number | string;
+  purchase_average_revenue_per_event?: number | string;
+  sign_up_events?: number | string;
+
   [key: string]: any;
 };
 
@@ -63,21 +75,63 @@ const toNumber = (v: any) => {
 const pickImportantRowFields = (r: AdjustRow) => ({
   day: r.day,
   app: r.app,
+  app_token: r.app_token ?? "",
+
   country: r.country,
   country_code: r.country_code,
   network: r.network,
   partner_name: r.partner_name,
   channel: r.channel,
   campaign: r.campaign,
+
   installs: toNumber(r.installs),
   clicks: toNumber(r.clicks),
+
   impressions: toNumber(r.impressions),
   events: toNumber(r.events),
   cost: toNumber(r.cost),
+
   network_installs: toNumber(r.network_installs),
   network_clicks: toNumber(r.network_clicks),
   network_cost: toNumber(r.network_cost),
+
+  purchase_events: toNumber(r.purchase_events),
+  purchase_revenue: toNumber(r.purchase_revenue),
+  purchase_average_revenue_per_event: toNumber(r.purchase_average_revenue_per_event),
+  sign_up_events: toNumber(r.sign_up_events),
 });
+
+// ✅ columnas que se ven en la tabla (y se pueden ordenar)
+type SortKey = keyof ReturnType<typeof pickImportantRowFields>;
+type SortDir = "asc" | "desc";
+
+const isNumericKey = (k: SortKey) => {
+  return [
+    "installs",
+    "clicks",
+    "impressions",
+    "events",
+    "cost",
+    "network_installs",
+    "network_clicks",
+    "network_cost",
+    "purchase_events",
+    "purchase_revenue",
+    "purchase_average_revenue_per_event",
+    "sign_up_events",
+  ].includes(k);
+};
+
+const compareValues = (a: any, b: any, numeric: boolean) => {
+  if (numeric) {
+    const na = toNumber(a);
+    const nb = toNumber(b);
+    return na === nb ? 0 : na > nb ? 1 : -1;
+  }
+  const sa = String(a ?? "").toLowerCase();
+  const sb = String(b ?? "").toLowerCase();
+  return sa.localeCompare(sb);
+};
 
 export default function ShowAdjust() {
   const today = new Date().toISOString().split("T")[0];
@@ -85,16 +139,55 @@ export default function ShowAdjust() {
   const [dateFrom, setDateFrom] = useState(today);
   const [dateTo, setDateTo] = useState(today);
 
-  // ✅ NUEVO: agregamos dayAndapp
   const [grouping, setGrouping] = useState<
-  "day" | "week" | "month" | "dayAndapp" | "dayAndCampaign"
->("day");
+    "day" | "week" | "month" | "dayAndapp" | "dayAndCampaign"
+  >("day");
 
   const [rows, setRows] = useState<AdjustRow[]>([]);
   const [totals, setTotals] = useState<AdjustTotals>({});
   const [isLoading, setIsLoading] = useState(false);
 
+  // ✅ SORT state (como en la foto)
+  const [sortKey, setSortKey] = useState<SortKey>("day");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
   const cleanRowsForExcel = useMemo(() => rows.map(pickImportantRowFields), [rows]);
+
+  const sortedRows = useMemo(() => {
+    const numeric = isNumericKey(sortKey);
+    const dirMul = sortDir === "asc" ? 1 : -1;
+
+    return [...rows].sort((ra, rb) => {
+      const a = pickImportantRowFields(ra)[sortKey];
+      const b = pickImportantRowFields(rb)[sortKey];
+      return compareValues(a, b, numeric) * dirMul;
+    });
+  }, [rows, sortKey, sortDir]);
+
+  const handleSort = (key: SortKey) => {
+    setSortKey((prevKey) => {
+      if (prevKey === key) {
+        setSortDir((prevDir) => (prevDir === "asc" ? "desc" : "asc"));
+        return prevKey;
+      }
+      setSortDir("asc");
+      return key;
+    });
+  };
+
+  const SortIcon = ({ col }: { col: SortKey }) => {
+    if (sortKey !== col) return <FaSort className="ml-2 opacity-60" />;
+    return sortDir === "asc" ? (
+      <FaSortUp className="ml-2" />
+    ) : (
+      <FaSortDown className="ml-2" />
+    );
+  };
+
+  const thClass = (col: SortKey) =>
+    `p-3 text-left text-sm font-semibold select-none cursor-pointer whitespace-nowrap ${
+      sortKey === col ? "text-white" : "text-gray-300"
+    }`;
 
   const handleRefresh = async () => {
     setIsLoading(true);
@@ -112,12 +205,15 @@ export default function ShowAdjust() {
 
   const handleExportExcel = () => {
     try {
-      if (cleanRowsForExcel.length === 0) {
+      // ✅ exporta RESPETANDO el orden actual
+      const rowsForExcelSorted = sortedRows.map(pickImportantRowFields);
+
+      if (rowsForExcelSorted.length === 0) {
         alert("No hay datos para exportar");
         return;
       }
 
-      const worksheet = XLSX.utils.json_to_sheet(cleanRowsForExcel);
+      const worksheet = XLSX.utils.json_to_sheet(rowsForExcelSorted);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "AdjustReport");
 
@@ -138,6 +234,11 @@ export default function ShowAdjust() {
     network_installs: toNumber(totals.network_installs),
     network_clicks: toNumber(totals.network_clicks),
     network_cost: toNumber(totals.network_cost),
+
+    purchase_events: toNumber(totals.purchase_events),
+    purchase_revenue: toNumber(totals.purchase_revenue),
+    purchase_avg: toNumber(totals.purchase_average_revenue_per_event),
+    sign_up_events: toNumber(totals.sign_up_events),
   };
 
   return (
@@ -170,16 +271,16 @@ export default function ShowAdjust() {
               className="w-full rounded-md border border-[#424242] bg-[#424242] p-2 text-gray-300"
               value={grouping}
               onChange={(e) =>
-  setGrouping(
-    e.target.value as "day" | "week" | "month" | "dayAndapp" | "dayAndCampaign"
-  )
-}
+                setGrouping(
+                  e.target.value as "day" | "week" | "month" | "dayAndapp" | "dayAndCampaign"
+                )
+              }
             >
               <option value="day">Day</option>
-<option value="dayAndapp">Day + App</option>
-<option value="dayAndCampaign">Day + Campaign</option>
-<option value="week">Week</option>
-<option value="month">Month</option>
+              <option value="dayAndapp">Day + App</option>
+              <option value="dayAndCampaign">Day + Campaign</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
             </select>
           </div>
 
@@ -196,8 +297,8 @@ export default function ShowAdjust() {
             <button
               onClick={handleExportExcel}
               className="flex-1 flex items-center justify-center rounded-md bg-[#B0BEC5] px-3 py-2 text-[#212121] hover:bg-[#90A4AE] transition-all duration-200"
-              disabled={cleanRowsForExcel.length === 0}
-              title={cleanRowsForExcel.length === 0 ? "No hay datos" : "Exportar"}
+              disabled={rows.length === 0}
+              title={rows.length === 0 ? "No hay datos" : "Exportar"}
             >
               <FaFileExcel className="h-5 w-5 mr-2" />
               Excel
@@ -224,56 +325,145 @@ export default function ShowAdjust() {
           <div className="text-xs text-gray-400">Impressions</div>
           <div className="text-xl font-semibold text-gray-100">{t.impressions}</div>
         </div>
-
-        <div className="rounded-lg border border-[#424242] bg-[#303030] p-4">
-          <div className="text-xs text-gray-400">Cost</div>
-          <div className="text-xl font-semibold text-gray-100">{t.cost}</div>
-        </div>
-        <div className="rounded-lg border border-[#424242] bg-[#303030] p-4">
-          <div className="text-xs text-gray-400">Network Installs</div>
-          <div className="text-xl font-semibold text-gray-100">{t.network_installs}</div>
-        </div>
-        <div className="rounded-lg border border-[#424242] bg-[#303030] p-4">
-          <div className="text-xs text-gray-400">Network Clicks</div>
-          <div className="text-xl font-semibold text-gray-100">{t.network_clicks}</div>
-        </div>
-        <div className="rounded-lg border border-[#424242] bg-[#303030] p-4">
-          <div className="text-xs text-gray-400">Network Cost</div>
-          <div className="text-xl font-semibold text-gray-100">{t.network_cost}</div>
-        </div>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto rounded-lg">
         <table className="w-full border-collapse bg-[#212121]">
           <thead>
-            <tr className="bg-[#424242] text-gray-300">
-              <th className="p-3 text-left text-sm font-semibold">Day</th>
-              <th className="p-3 text-left text-sm font-semibold">App</th>
-              <th className="p-3 text-left text-sm font-semibold">Country</th>
-              <th className="p-3 text-left text-sm font-semibold">Network</th>
-              <th className="p-3 text-left text-sm font-semibold">Channel</th>
-              <th className="p-3 text-left text-sm font-semibold">Campaign</th>
-              <th className="p-3 text-left text-sm font-semibold">Installs</th>
-              <th className="p-3 text-left text-sm font-semibold">Clicks</th>
-              <th className="p-3 text-left text-sm font-semibold">Impr.</th>
-              <th className="p-3 text-left text-sm font-semibold">Events</th>
-              <th className="p-3 text-left text-sm font-semibold">Cost</th>
-              <th className="p-3 text-left text-sm font-semibold">Net Installs</th>
-              <th className="p-3 text-left text-sm font-semibold">Net Clicks</th>
-              <th className="p-3 text-left text-sm font-semibold">Net Cost</th>
+            <tr className="bg-[#424242]">
+              <th onClick={() => handleSort("day")} className={thClass("day")}>
+                <div className="inline-flex items-center">
+                  Day <SortIcon col="day" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("app")} className={thClass("app")}>
+                <div className="inline-flex items-center">
+                  App <SortIcon col="app" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("app_token")} className={thClass("app_token")}>
+                <div className="inline-flex items-center">
+                  App Token <SortIcon col="app_token" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("country")} className={thClass("country")}>
+                <div className="inline-flex items-center">
+                  Country <SortIcon col="country" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("network")} className={thClass("network")}>
+                <div className="inline-flex items-center">
+                  Network <SortIcon col="network" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("partner_name")} className={thClass("partner_name")}>
+                <div className="inline-flex items-center">
+                  Partner <SortIcon col="partner_name" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("channel")} className={thClass("channel")}>
+                <div className="inline-flex items-center">
+                  Channel <SortIcon col="channel" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("campaign")} className={thClass("campaign")}>
+                <div className="inline-flex items-center">
+                  Campaign <SortIcon col="campaign" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("installs")} className={thClass("installs")}>
+                <div className="inline-flex items-center">
+                  Installs <SortIcon col="installs" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("clicks")} className={thClass("clicks")}>
+                <div className="inline-flex items-center">
+                  Clicks <SortIcon col="clicks" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("impressions")} className={thClass("impressions")}>
+                <div className="inline-flex items-center">
+                  Impr. <SortIcon col="impressions" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("events")} className={thClass("events")}>
+                <div className="inline-flex items-center">
+                  Events <SortIcon col="events" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("cost")} className={thClass("cost")}>
+                <div className="inline-flex items-center">
+                  Cost <SortIcon col="cost" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("network_installs")} className={thClass("network_installs")}>
+                <div className="inline-flex items-center">
+                  Net Installs <SortIcon col="network_installs" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("network_clicks")} className={thClass("network_clicks")}>
+                <div className="inline-flex items-center">
+                  Net Clicks <SortIcon col="network_clicks" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("network_cost")} className={thClass("network_cost")}>
+                <div className="inline-flex items-center">
+                  Net Cost <SortIcon col="network_cost" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("purchase_events")} className={thClass("purchase_events")}>
+                <div className="inline-flex items-center">
+                  Purchase Events <SortIcon col="purchase_events" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("purchase_revenue")} className={thClass("purchase_revenue")}>
+                <div className="inline-flex items-center">
+                  Purchase Revenue <SortIcon col="purchase_revenue" />
+                </div>
+              </th>
+
+              <th
+                onClick={() => handleSort("purchase_average_revenue_per_event")}
+                className={thClass("purchase_average_revenue_per_event")}
+              >
+                <div className="inline-flex items-center">
+                  Avg Rev / Purchase <SortIcon col="purchase_average_revenue_per_event" />
+                </div>
+              </th>
+
+              <th onClick={() => handleSort("sign_up_events")} className={thClass("sign_up_events")}>
+                <div className="inline-flex items-center">
+                  Sign Up <SortIcon col="sign_up_events" />
+                </div>
+              </th>
             </tr>
           </thead>
 
           <tbody>
-            {rows.length > 0 ? (
-              rows.map((r, idx) => {
+            {sortedRows.length > 0 ? (
+              sortedRows.map((r, idx) => {
                 const rr = pickImportantRowFields(r);
 
-                // ✅ key estable: si viene "key" lo usamos, sino fallback
                 const rowKey =
-                  r.key ??
-                  `${rr.day}-${r.app_token}-${rr.country_code}-${rr.campaign}-${idx}`;
+                  r.key ?? `${rr.day}-${rr.app_token}-${rr.country_code}-${rr.campaign}-${idx}`;
 
                 return (
                   <tr
@@ -284,26 +474,35 @@ export default function ShowAdjust() {
                   >
                     <td className="p-3 text-sm text-gray-300 whitespace-nowrap">{rr.day}</td>
                     <td className="p-3 text-sm text-gray-300 whitespace-nowrap">{rr.app}</td>
+                    <td className="p-3 text-sm text-gray-300 whitespace-nowrap">{rr.app_token}</td>
                     <td className="p-3 text-sm text-gray-300 whitespace-nowrap">
                       {rr.country} ({rr.country_code})
                     </td>
                     <td className="p-3 text-sm text-gray-300 whitespace-nowrap">{rr.network}</td>
+                    <td className="p-3 text-sm text-gray-300 whitespace-nowrap">{rr.partner_name}</td>
                     <td className="p-3 text-sm text-gray-300 whitespace-nowrap">{rr.channel}</td>
                     <td className="p-3 text-sm text-gray-300">{rr.campaign}</td>
+
                     <td className="p-3 text-sm text-gray-300">{rr.installs}</td>
                     <td className="p-3 text-sm text-gray-300">{rr.clicks}</td>
                     <td className="p-3 text-sm text-gray-300">{rr.impressions}</td>
                     <td className="p-3 text-sm text-gray-300">{rr.events}</td>
                     <td className="p-3 text-sm text-gray-300">{rr.cost}</td>
+
                     <td className="p-3 text-sm text-gray-300">{rr.network_installs}</td>
                     <td className="p-3 text-sm text-gray-300">{rr.network_clicks}</td>
                     <td className="p-3 text-sm text-gray-300">{rr.network_cost}</td>
+
+                    <td className="p-3 text-sm text-gray-300">{rr.purchase_events}</td>
+                    <td className="p-3 text-sm text-gray-300">{rr.purchase_revenue}</td>
+                    <td className="p-3 text-sm text-gray-300">{rr.purchase_average_revenue_per_event}</td>
+                    <td className="p-3 text-sm text-gray-300">{rr.sign_up_events}</td>
                   </tr>
                 );
               })
             ) : (
               <tr>
-                <td colSpan={14} className="p-4 text-center text-gray-500">
+                <td colSpan={20} className="p-4 text-center text-gray-500">
                   No data found
                 </td>
               </tr>
