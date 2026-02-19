@@ -1,10 +1,8 @@
 "use client";
 
-import { getDashboardData } from '@/app/api/dashboard/dashboard';
-import { getReportsCampaignTotal } from '@/app/api/report/service';
-import { dataStats } from '@/types/dataStats';
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { getReportsCampaignTotal } from "@/app/api/report/service";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 // ✅ Agregado: hook AI
 import { useLaikadAI } from "@/hooks/useLaikadAI";
@@ -44,16 +42,16 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
   }
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    const roleId = localStorage.getItem('RoleID');
+    const token = localStorage.getItem("accessToken");
+    const roleId = localStorage.getItem("RoleID");
 
-    if (roleId === '7') {
-      router.replace('/dashboard/dashboardAdvertiser');
+    if (roleId === "7") {
+      router.replace("/dashboard/dashboardAdvertiser");
       return;
     }
 
-    if (roleId === '8') {
-      router.replace('/dashboard/dashboardSuppliers');
+    if (roleId === "8") {
+      router.replace("/dashboard/dashboardSuppliers");
       return;
     }
 
@@ -73,26 +71,30 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
 
     const fetchData = async () => {
       try {
+        // ✅ FIX: respetar la firma (máx 22 args) -> el build no rompe más
         const response = await getReportsCampaignTotal(
-          filters?.fromDate?.replace(/-/g, '') || '',
-          filters?.toDate?.replace(/-/g, '') || '',
+          filters?.fromDate?.replace(/-/g, "") || "",
+          filters?.toDate?.replace(/-/g, "") || "",
           filters?.advertiserID,
           filters?.supplierID,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          '0',
-          '1',
-          '1',
-          '0',
-          '0',
-          '0',
-          '0',
-          '0',
-          '0', '0', '0',
-          'Greater', 'Greater', 'Greater',
-          '0'
+          undefined, // CampaignID
+          undefined, // OfferID
+          undefined, // UserID
+          undefined, // AccountManagerID2
+          "0", // isDate
+          "1", // isAdvertiser
+          "1", // isCampaign
+          "0", // isSupplier
+          "0", // isOffer
+          "0", // isSubPub
+          "0", // isAdjustment
+          "0", // clicks
+          "0", // installs
+          "0", // events
+          "Greater", // opeClicks
+          "Greater", // opeInstalls
+          "Greater", // opeEvents
+          "0" // isP2
         );
 
         const todayData = response?.body?.result?.reduce(
@@ -125,7 +127,7 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
       }
     };
 
-    if (roleId === '3' || roleId === '9') {
+    if (roleId === "3" || roleId === "9") {
       fetchData();
     } else {
       setCheckingRole(false);
@@ -139,30 +141,46 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
   const dataStatsList = [
     {
       icon: (
-        <svg width="26" height="26" className="text-black dark:text-white" viewBox="0 0 497.25 497.25" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="26"
+          height="26"
+          className="text-black dark:text-white"
+          viewBox="0 0 497.25 497.25"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <g>
             <g>
-              <path d="M144.788,66.938c0-26.775,21.038-47.812,47.812-47.812s47.812,21.038,47.812,47.812v45.9
+              <path
+                d="M144.788,66.938c0-26.775,21.038-47.812,47.812-47.812s47.812,21.038,47.812,47.812v45.9
               c11.474-11.475,19.125-28.688,19.125-45.9C259.538,30.6,228.938,0,192.601,0s-66.938,30.6-66.938,66.938
-              c0,19.125,7.65,34.425,19.125,45.9V66.938z" />
-              <path d="M422.1,172.125c-15.3,0-28.688,13.388-28.688,28.688v42.075v5.737h-19.125v-43.987v-22.95
+              c0,19.125,7.65,34.425,19.125,45.9V66.938z"
+              />
+              <path
+                d="M422.1,172.125c-15.3,0-28.688,13.388-28.688,28.688v42.075v5.737h-19.125v-43.987v-22.95
               c0-15.3-13.388-28.688-28.688-28.688s-28.688,13.388-28.688,28.688v19.125V229.5h-19.125v-28.688v-38.25
               c0-15.3-13.388-28.688-28.688-28.688s-28.687,13.388-28.687,28.688V198.9v49.725h-19.125v-47.812V66.938
               c0-15.3-13.388-28.688-28.688-28.688s-28.688,13.388-28.688,28.688v196.987c-40.163-42.075-91.8-87.975-112.837-66.938
               c-21.038,21.038,32.512,78.413,107.1,204.638c34.425,57.375,76.5,95.625,149.174,95.625c78.412,0,143.438-65.025,143.438-143.438
-              V290.7v-89.888C450.788,185.513,437.4,172.125,422.1,172.125z" />
+              V290.7v-89.888C450.788,185.513,437.4,172.125,422.1,172.125z"
+              />
             </g>
           </g>
         </svg>
       ),
-      color: '#3FD97F',
-      title: 'Total Clicks',
-      value: data ? data.Clicks : '0',
+      color: "#3FD97F",
+      title: "Total Clicks",
+      value: data ? data.Clicks : "0",
       growthRate: data ? data.ClickCountGrowthRate || 0 : 0,
     },
     {
       icon: (
-        <svg width="26" className="text-black dark:text-white" height="26" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="26"
+          className="text-black dark:text-white"
+          height="26"
+          viewBox="0 0 48 48"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <rect width="48" height="48" fill="currentColor" fillOpacity="0.01" />
           <path
             d="M41.4004 11.551L36.3332 5H11.6666L6.58398 11.551"
@@ -178,18 +196,37 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
             strokeWidth="4"
             strokeLinejoin="round"
           />
-          <path d="M32 27L24 35L16 27" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M23.9917 19V35" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M32 27L24 35L16 27"
+            stroke="white"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M23.9917 19V35"
+            stroke="white"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       ),
-      color: 'black',
-      title: 'Total Install',
-      value: data ? data.Install : '0',
+      color: "black",
+      title: "Total Install",
+      value: data ? data.Install : "0",
       growthRate: 4.35,
     },
     {
       icon: (
-        <svg width="26" height="26" className="text-black dark:text-white" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+        <svg
+          width="26"
+          height="26"
+          className="text-black dark:text-white"
+          viewBox="0 0 32 32"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+        >
           <path
             d="M6,30H26a2,2,0,0,0,2-2V22a2,2,0,0,0-2-2H6a2,2,0,0,0-2,2v6A2,2,0,0,0,6,30Zm0-8H26v6H6Z"
             transform="translate(0 0)"
@@ -203,14 +240,20 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
           />
         </svg>
       ),
-      color: '#8155FF',
-      title: 'Total Proxy',
-      value: data ? data.TrackingProxy : '0.00',
+      color: "#8155FF",
+      title: "Total Proxy",
+      value: data ? data.TrackingProxy : "0.00",
       growthRate: 2.59,
     },
     {
       icon: (
-        <svg width="26" height="26" className="text-black dark:text-white" viewBox="0 0 652.801 652.801" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="26"
+          height="26"
+          className="text-black dark:text-white"
+          viewBox="0 0 652.801 652.801"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <g>
             <g id="_x35__39_">
               <g>
@@ -220,9 +263,9 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
           </g>
         </svg>
       ),
-      color: '#18BFFF',
-      title: 'Total Events',
-      value: data ? data.Events : '0',
+      color: "#18BFFF",
+      title: "Total Events",
+      value: data ? data.Events : "0",
       growthRate: -0.95,
     },
     {
@@ -233,41 +276,61 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
           className="text-black dark:text-white"
           viewBox="0 0 32 32"
           xmlns="http://www.w3.org/2000/svg"
-          style={{ fillRule: 'evenodd', clipRule: 'evenodd', strokeLinejoin: 'round', strokeMiterlimit: 2 }}
+          style={{
+            fillRule: "evenodd",
+            clipRule: "evenodd",
+            strokeLinejoin: "round",
+            strokeMiterlimit: 2,
+          }}
         >
-          <path d="M6,29l22,-0c0.552,0 1,-0.448 1,-1l-0,-18c0,-0.552 -0.448,-1 -1,-1l-4,-0c-0.552,-0 -1,0.448 -1,1l-0,17l-2,-0l-0,-12c0,-0.552 -0.448,-1 -1,-1l-4,-0c-0.552,-0 -1,0.448 -1,1l-0,12l-2,-0l0,-7.988c0,-0.552 -0.448,-1 -1,-1l-4,0c-0.552,0 -1,0.448 -1,1l0,7.988l-1,-0c-0.265,0 -0.52,-0.105 -0.707,-0.293c-0.188,-0.187 -0.293,-0.442 -0.293,-0.707l0,-22c-0,-0.552 -0.448,-1 -1,-1c-0.552,-0 -1,0.448 -1,1l0,22c-0,0.796 0.316,1.559 0.879,2.121c0.562,0.563 1.325,0.879 2.121,0.879Z" />
+          <path d="M6,29l22,-0c0.552,0 1,-0.448 1,-1l-0,-18c0,-0.552 -0.448,-1 -1,-1l-4,-0c-0.552,-0 -1,0.448 -1,1l-0,17l-2,-0l-0,-12c0,-0.552 -0.448,-1 -1,-1l-4,-0c-0.552,0 -1,0.448 -1,1l-0,12l-2,-0l0,-7.988c0,-0.552 -0.448,-1 -1,-1l-4,0c-0.552,0 -1,0.448 -1,1l0,7.988l-1,-0c-0.265,0 -0.52,-0.105 -0.707,-0.293c-0.188,-0.187 -0.293,-0.442 -0.293,-0.707l0,-22c-0,-0.552 -0.448,-1 -1,-1c-0.552,-0 -1,0.448 -1,1l0,22c-0,0.796 0.316,1.559 0.879,2.121c0.562,0.563 1.325,0.879 2.121,0.879Z" />
           <path d="M10.003,4l-0.003,0c-1.656,0 -3,1.344 -3,3c0,1.656 1.344,3 3,3c0,0 2,-0 2,-0c0.552,-0 1,0.448 1,1c-0,0.552 -0.448,1 -1,1c-0,-0 -3,-0 -3,-0c-0.552,0 -1,0.448 -1,1c0,0.552 0.448,1 1,1l1.003,-0l0,1c0,0.552 0.449,1 1,1c0.552,0 1,-0.448 1,-1l0,-1c1.655,-0.002 2.997,-1.345 2.997,-3c-0,-1.656 -1.344,-3 -3,-3c-0,-0 -2,0 -2,0c-0.552,0 -1,-0.448 -1,-1c0,-0.552 0.448,-1 1,-1l3,0c0.552,0 1,-0.448 1,-1c0,-0.552 -0.448,-1 -1,-1l-0.997,0l0,-1c0,-0.552 -0.448,-1 -1,-1c-0.551,0 -1,0.448 -1,1l0,1Z" />
         </svg>
       ),
-      color: 'red',
-      title: 'Total Revenue',
-      value: `$${data ? data.Revenue.toFixed(2) : '0.00'}`,
+      color: "red",
+      title: "Total Revenue",
+      value: `$${data ? data.Revenue.toFixed(2) : "0.00"}`,
       growthRate: -0.95,
     },
     {
       icon: (
-        <svg width="26" height="26" className="text-black dark:text-white" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="26"
+          height="26"
+          className="text-black dark:text-white"
+          viewBox="0 0 64 64"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path d="M5,51h29v-2H5c-1.654,0-3-1.346-3-3V18c0-1.654,1.346-3,3-3h46v-2H5c-2.757,0-5,2.243-5,5v28C0,48.757,2.243,51,5,51z" />
           <path d="M59,13h-2.324l1.226-2.569l-1.805-0.861l-21,44l1.805,0.861L38.54,51H59c2.757,0,5-2.243,5-5V18C64,15.243,61.757,13,59,13z" />
           <path d="M49,17H8c-0.552,0-1,0.447-1,1c0,1.103-0.897,2-2,2c-0.552,0-1,0.447-1,1v22c0,0.553,0.448,1,1,1c1.103,0,2,0.897,2,2 c0,0.553,0.448,1,1,1h28v-2H8.874C8.511,43.597,7.404,42.489,6,42.127V21.873c1.404-0.362,2.511-1.47,2.874-2.873H49V17z" />
           <path d="M21,32c0,6.065,4.935,11,11,11s11-4.935,11-11s-4.935-11-11-11S21,25.935,21,32z" />
         </svg>
       ),
-      color: 'blue',
-      title: 'Total Cost',
-      value: data ? `$${data.Cost.toFixed(2)}` : '$0.00',
+      color: "blue",
+      title: "Total Cost",
+      value: data ? `$${data.Cost.toFixed(2)}` : "$0.00",
       growthRate: -0.95,
     },
     {
       icon: (
-        <svg width="26" className="text-black dark:text-white" height="26" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-          <path d="M16,28h8.042A5.958,5.958,0,0,1,30,33.958V36H21.958A5.958,5.958,0,0,1,16,30.042V28Z" fill="#027de5" />
+        <svg
+          width="26"
+          className="text-black dark:text-white"
+          height="26"
+          viewBox="0 0 64 64"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M16,28h8.042A5.958,5.958,0,0,1,30,33.958V36H21.958A5.958,5.958,0,0,1,16,30.042V28Z"
+            fill="#027de5"
+          />
           <circle cx="32" cy="13" r="10" fill="#027de5" />
         </svg>
       ),
-      color: 'violet',
-      title: 'Total Profit',
-      value: `$${data ? data.Profit.toFixed(2) : '0.00'}`,
+      color: "violet",
+      title: "Total Profit",
+      value: `$${data ? data.Profit.toFixed(2) : "0.00"}`,
       growthRate: -0.95,
     },
   ];
@@ -305,10 +368,14 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
             >
               {item.icon}
             </div>
-            <div className="mb-4 text-lg font-semibold text-black dark:text-white">{item.title}</div>
+            <div className="mb-4 text-lg font-semibold text-black dark:text-white">
+              {item.title}
+            </div>
             <div className="text-2xl font-bold text-black dark:text-white">{item.value}</div>
             <div
-              className={`text-sm font-medium ${Number(item.growthRate) > 0 ? 'text-green-500' : 'text-red-500'}`}
+              className={`text-sm font-medium ${
+                Number(item.growthRate) > 0 ? "text-green-500" : "text-red-500"
+              }`}
             ></div>
           </div>
         ))}
