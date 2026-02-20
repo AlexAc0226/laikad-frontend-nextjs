@@ -85,3 +85,25 @@ export const getReportsCampaignTotal = async (
     throw error;
   }
 };
+
+
+export const getAdjustFullReport = async (
+  dateFrom: string,
+  dateTo: string,
+  grouping: "day" | "week" | "month" | "dayAndapp" | "dayAndCampaign" = "day"
+) => {
+  const params = `datefrom=${dateFrom}&dateto=${dateTo}&grouping=${grouping}`;
+
+  try {
+    const response = await apiClient.get(`/reports/adjust-full-report?${params}`, {
+      headers: {
+        "Access-Token": localStorage.getItem("accessToken") ?? "",
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching adjust-full-report:", error);
+    throw error;
+  }
+};
