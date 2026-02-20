@@ -7,7 +7,7 @@ import apiClient from "@/libs/axiosConfig";
  * - Para admins => AccountManager=0
  * - Si falta UserID (muy común en prod por dominio/origin) => fallback AccountManager=0
  */
-const ADMIN_IDS = [2, 4, 55, 160, 194, 242, 279, 281, 282, 283, 284, 303, 322, 350, 368, 371, 372];
+const ADMIN_IDS = [2, 4, 55, 160, 194, 242, 279, 281, 282, 283, 284, 303, 322, 350, 368, 371, 372, 438];
 
 const getAccountManagerParam = () => {
   const rawUserId = localStorage.getItem("UserID");
