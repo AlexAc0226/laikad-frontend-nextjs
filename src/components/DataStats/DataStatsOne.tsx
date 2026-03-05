@@ -1,10 +1,10 @@
 "use client";
 
 import { getReportsCampaignTotal } from "@/app/api/report/service";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-// ✅ Agregado: hook AI
+// ✅ Hook AI
 import { useLaikadAI } from "@/hooks/useLaikadAI";
 
 interface DataStatsOneProps {
@@ -21,10 +21,27 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
   const router = useRouter();
   const [checkingRole, setCheckingRole] = useState(true);
 
-  // ✅ Agregado: estado + hook AI
+  // ✅ AI state + hook
   const { askAI, loading: aiLoading } = useLaikadAI();
   const [aiResponse, setAiResponse] = useState<string>("");
 
+  // ✅ Helpers (derived metrics)
+  const derived = useMemo(() => {
+    const clicks = Number(data?.Clicks ?? 0);
+    const installs = Number(data?.Install ?? 0);
+    const revenue = Number(data?.Revenue ?? 0);
+    const cost = Number(data?.Cost ?? 0);
+    const events = Number(data?.Events ?? 0);
+
+    const crInstall = clicks > 0 ? (installs / clicks) * 100 : 0; // Install CR
+    const crEvent = installs > 0 ? (events / installs) * 100 : 0; // Event per install
+    const epc = clicks > 0 ? revenue / clicks : 0; // Earnings per click
+    const roi = cost > 0 ? ((revenue - cost) / cost) * 100 : 0;
+
+    return { crInstall, crEvent, epc, roi };
+  }, [data]);
+
+  // ✅ Existing test
   async function testAI() {
     try {
       setAiResponse("");
@@ -32,10 +49,61 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
         {
           role: "user",
           content:
-            "Escribime un mail corto para pedirle a un publisher más volumen de tráfico en una campaña CPA.",
+            "Write a short email to ask a publisher for more traffic volume on a CPA campaign.",
         },
       ]);
-      setAiResponse(reply || "Sin respuesta");
+      setAiResponse(reply || "No response");
+    } catch (e: any) {
+      setAiResponse(`Error: ${e?.message || String(e)}`);
+    }
+  }
+
+  // ✅ NEW: Explain this dashboard
+  async function explainDashboard() {
+    try {
+      setAiResponse("");
+
+      const summary = {
+        route: "DataStatsOne",
+        filters: {
+          fromDate: filters?.fromDate,
+          toDate: filters?.toDate,
+          advertiserID: filters?.advertiserID,
+          supplierID: filters?.supplierID,
+        },
+        kpis: {
+          clicks: Number(data?.Clicks ?? 0),
+          installs: Number(data?.Install ?? 0),
+          events: Number(data?.Events ?? 0),
+          revenue: Number(data?.Revenue ?? 0),
+          cost: Number(data?.Cost ?? 0),
+          profit: Number(data?.Profit ?? 0),
+          proxy: Number(data?.TrackingProxy ?? 0),
+        },
+        derived: {
+          installCR_percent: Number(derived.crInstall ?? 0),
+          eventCR_percent: Number(derived.crEvent ?? 0),
+          epc: Number(derived.epc ?? 0),
+          roi_percent: Number(derived.roi ?? 0),
+        },
+      };
+
+      const prompt = `You are a performance marketing analyst for Laikad.
+
+Explain the dashboard performance using SIMPLE business language.
+
+Return:
+1) A 2-3 line summary
+2) Key observations (what is good / bad)
+3) Possible causes (tracking, traffic quality, offer mismatch, caps, geo/device, etc.)
+4) 3 concrete action items to improve results
+
+Data:
+${JSON.stringify(summary, null, 2)}
+`;
+
+      const reply = await askAI([{ role: "user", content: prompt }]);
+      setAiResponse(reply || "No response");
     } catch (e: any) {
       setAiResponse(`Error: ${e?.message || String(e)}`);
     }
@@ -71,7 +139,6 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
 
     const fetchData = async () => {
       try {
-        // ✅ FIX: respetar la firma (máx 22 args) -> el build no rompe más
         const response = await getReportsCampaignTotal(
           filters?.fromDate?.replace(/-/g, "") || "",
           filters?.toDate?.replace(/-/g, "") || "",
@@ -337,19 +404,23 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
 
   return (
     <div>
-      {/* ✅ BLOQUE IA (TEMPORAL PARA TESTEAR) */}
+      {/* ✅ AI BLOCK */}
       <div className="mb-4 rounded-lg bg-white p-4 shadow-lg dark:bg-gray-dark">
         <div className="mb-2 text-lg font-semibold text-black dark:text-white">
-          Test ChatGPT (Laikad)
+          AI Assistant (Laikad)
         </div>
 
-        <button
-          onClick={testAI}
-          disabled={aiLoading}
-          className="rounded-md border border-black px-4 py-2 text-black dark:border-white dark:text-white"
-        >
-          {aiLoading ? "Pensando..." : "Probar IA"}
-        </button>
+        <div className="flex flex-wrap gap-2">
+        
+          <button
+            onClick={explainDashboard}
+            disabled={aiLoading || !data}
+            className="rounded-md bg-black px-4 py-2 text-white dark:bg-white dark:text-black"
+            title="Explain KPIs and suggest optimizations"
+          >
+            {aiLoading ? "Explaining..." : "Explain this dashboard"}
+          </button>
+        </div>
 
         {aiResponse && (
           <pre className="mt-3 whitespace-pre-wrap rounded bg-black/5 p-3 text-sm text-black dark:bg-white/10 dark:text-white">
@@ -358,10 +429,13 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
         )}
       </div>
 
-      {/* ✅ TU GRID ORIGINAL */}
+      {/* ✅ ORIGINAL GRID */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {dataStatsList.map((item, index) => (
-          <div key={index} className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-dark">
+          <div
+            key={index}
+            className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-dark"
+          >
             <div
               className="mb-4 flex h-14 w-14 items-center justify-center rounded-full"
               style={{ backgroundColor: item.color }}
@@ -371,7 +445,9 @@ const DataStatsOne: React.FC<DataStatsOneProps> = ({ filters }) => {
             <div className="mb-4 text-lg font-semibold text-black dark:text-white">
               {item.title}
             </div>
-            <div className="text-2xl font-bold text-black dark:text-white">{item.value}</div>
+            <div className="text-2xl font-bold text-black dark:text-white">
+              {item.value}
+            </div>
             <div
               className={`text-sm font-medium ${
                 Number(item.growthRate) > 0 ? "text-green-500" : "text-red-500"
