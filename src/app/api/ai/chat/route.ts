@@ -36,20 +36,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No messages" }, { status: 400 });
     }
 
-    const response = await openai.responses.create({
-      model: "gpt-5",
-      instructions: `
+    const systemContent = `
 Sos el asistente interno de Laikad, una plataforma de performance marketing afiliado.
 Respondé en español, claro, práctico y orientado a operaciones.
 No inventes datos. Si falta info, preguntá lo mínimo.
-`,
-      input: messages.map((m: any) => ({
-        role: m.role === "system" ? "developer" : m.role,
-        content: m.content,
-      })),
+`.trim();
+
+    const chatMessages: { role: "system" | "user" | "assistant"; content: string }[] = [
+      { role: "system", content: systemContent },
+      ...messages
+        .filter((m: { role?: string; content?: string }) => m.content)
+        .map((m: { role?: string; content?: string }) => ({
+          role: (m.role === "assistant" || m.role === "user" ? m.role : "user") as "system" | "user" | "assistant",
+          content: String(m.content),
+        })),
+    ];
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: chatMessages,
     });
 
-    return NextResponse.json({ text: response.output_text });
+    const text = response.choices?.[0]?.message?.content ?? "";
+    return NextResponse.json({ text });
   } catch (error: any) {
     console.error("AI error:", error);
     return NextResponse.json(

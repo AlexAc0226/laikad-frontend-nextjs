@@ -68,26 +68,25 @@ const TestLinkOffer: React.FC = () => {
     
     setIsLoading(true);
     try {
-      // Replace with your actual endpoint
-      const endpoint = type === 'Install' ? '/api/test-install' : '/api/test-event';
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ link }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Request failed');
+      // Asegurar que la URL sea válida
+      let urlObj: URL;
+      try {
+        urlObj = new URL(link.startsWith('http') ? link : `https://${link}`);
+      } catch (err) {
+        throw new Error('Por favor ingresa una URL válida');
       }
+
+      // Si es un evento, añadimos o reemplazamos el parámetro event
+      if (type === 'Event') {
+        urlObj.searchParams.set('event', 'TEST');
+      }
+
+      // Abrir la URL en una nueva pestaña para simular el Install/Event
+      window.open(urlObj.toString(), '_blank');
       
-      const data = await response.json();
-      console.log('Response:', data);
-      // Handle success (e.g., show notification)
     } catch (error) {
       console.error('Error:', error);
-      // Handle error (e.g., show error message)
+      alert((error as Error).message || 'Invalid URL');
     } finally {
       setIsLoading(false);
     }
