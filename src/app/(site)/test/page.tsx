@@ -84,7 +84,7 @@ const TestPageContent = () => {
                     </Typography>
                 ) : (
                     <Typography variant="body2" color="error" sx={{ mb: 3 }}>
-                        Warning: No 'click' parameter found in the URL.
+                        Warning: No &#39;click&#39; parameter found in the URL.
                     </Typography>
                 )}
 
