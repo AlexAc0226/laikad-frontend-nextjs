@@ -470,7 +470,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     'Messages': ['9'],
     'Inbox': ['9'],
     'Authentication': ['', '2', '3', '7', '8', '9'],
-    'Test Link': ['9'],
+    'Test Link': ['3', '9'],
   };
 
   const routeAccess: { [route: string]: string[] } = {
@@ -490,7 +490,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     '/dashboard/dashboardRequestOff': ['8'],
     '/dashboard/dashboardAdvertiser': ['7'],
     '/dashboard/dashboardAdvCampaing': ['7'],
-    '/test-link': ['9'],
+    '/test-link': ['3', '9'],
   };
 
   const canAccessItem = (
