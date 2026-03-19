@@ -378,10 +378,14 @@ const ShowCampaigns: React.FC = () => {
         VPNCheck: "1",
         LanguageCheck: "0",
         accionApps: "ALTA",
-        CampaignHead: encodeURIComponent(selectedHeadCampaign.CampaignHead || ""),
+        // CampaignHead se envía igual que en createOrUpdateCampaignHead:
+        // base64(encodeURIComponent(CampaignHead))
+        CampaignHead: btoa(
+          encodeURIComponent(selectedHeadCampaign.CampaignHead || "")
+        ),
       });
 
-      const url = `https://api.laikad.com/api/campaignshead?${params.toString()}`;
+      const url = `/campaignshead?${params.toString()}`;
 
       const response = await apiClient.put(url, null, {
         headers: {
@@ -406,7 +410,7 @@ const ShowCampaigns: React.FC = () => {
     if (!confirmDelete) return;
 
     try {
-      const url = `https://api.laikad.com/api/campaignshead?CampaignHeadID=${campaignId}`;
+      const url = `/campaignshead?CampaignHeadID=${campaignId}`;
 
       await apiClient.delete(url, {
         headers: {
